@@ -1,0 +1,64 @@
+import { Link } from 'react-router-dom';
+
+const Footer = () => {
+  return (
+    <footer className="bg-slate-900 text-white pt-16 pb-8 px-6">
+      <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="col-span-1 md:col-span-1">
+          <Link to="/" className="text-2xl font-display font-black tracking-tighter">
+            A2Z<span className="text-primary">GROUPS</span>
+          </Link>
+          <p className="mt-4 text-slate-400 text-sm leading-relaxed max-w-xs">
+            A2ZGROUPS is a premium retail brand based in the UK, committed to providing high-quality products and a seamless shopping experience.
+          </p>
+        </div>
+
+        <div>
+          <h4 className="font-display font-bold text-lg mb-6 uppercase tracking-wider">Shop</h4>
+          <ul className="space-y-3 text-slate-400 text-sm">
+            <li><Link to="/shop" className="hover:text-primary transition-colors">All Products</Link></li>
+            <li><Link to="/shop?category=new" className="hover:text-primary transition-colors">New Arrivals</Link></li>
+            <li><Link to="/shop?category=best-sellers" className="hover:text-primary transition-colors">Best Sellers</Link></li>
+            <li><Link to="/shop?category=popular" className="hover:text-primary transition-colors">Popular</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="font-display font-bold text-lg mb-6 uppercase tracking-wider">Customer Care</h4>
+          <ul className="space-y-3 text-slate-400 text-sm">
+            <li><Link to="/about" className="hover:text-primary transition-colors">About Us</Link></li>
+            <li><Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
+            <li><Link to="/shipping" className="hover:text-primary transition-colors">Shipping & Returns</Link></li>
+            <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="font-display font-bold text-lg mb-6 uppercase tracking-wider">Stay Updated</h4>
+          <p className="text-slate-400 text-sm mb-4">Subscribe to our newsletter for exclusive offers and updates.</p>
+          <div className="flex">
+            <input 
+              type="email" 
+              placeholder="Email address" 
+              className="bg-slate-800 border-none text-white px-4 py-2 w-full rounded-l-lg focus:ring-1 focus:ring-primary outline-none text-sm"
+            />
+            <button className="bg-primary text-white px-4 py-2 rounded-r-lg font-bold uppercase text-xs tracking-widest hover:bg-opacity-90 transition-all">
+              Join
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div className="container mx-auto mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center text-slate-500 text-xs gap-4">
+        <p>© 2025 A2ZGROUPS LTD. All rights reserved.</p>
+        <div className="flex space-x-6">
+          <a href="#" className="hover:text-primary transition-colors">Instagram</a>
+          <a href="#" className="hover:text-primary transition-colors">Facebook</a>
+          <a href="#" className="hover:text-primary transition-colors">Twitter</a>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
