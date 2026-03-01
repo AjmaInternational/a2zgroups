@@ -10,7 +10,6 @@ export const useProducts = (filters = {}) => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      // Fallback to mock if supabase fails or tables don't exist yet
       let query = supabase.from('products').select('*', { count: 'exact' });
 
       if (filters.category && filters.category !== 'All') {
@@ -20,6 +19,17 @@ export const useProducts = (filters = {}) => {
         query = query.ilike('name', `%${filters.search}%`);
       }
       
+      if (filters.minPrice) {
+        query = query.gte('price', filters.minPrice);
+      }
+      if (filters.maxPrice) {
+        query = query.lte('price', filters.maxPrice);
+      }
+
+      const sortField = filters.sortField || 'created_at';
+      const ascending = filters.sortOrder === 'asc';
+      query = query.order(sortField, { ascending });
+
       if (filters.page && filters.pageSize) {
         const from = (filters.page - 1) * filters.pageSize;
         const to = from + filters.pageSize - 1;
@@ -28,7 +38,7 @@ export const useProducts = (filters = {}) => {
         query = query.limit(filters.limit);
       }
       
-      const { data, error, count } = await query.order('created_at', { ascending: false });
+      const { data, error, count } = await query;
       
       if (error) {
         // Mock data for development if table doesn't exist
@@ -95,7 +105,11 @@ export const useBanners = (location = 'home') => {
 
   const fetchBanners = async () => {
     try {
-      const { data, error } = await supabase.from('banners').select('*').eq('location', location);
+      let query = supabase.from('banners').select('*');
+      if (location !== 'all') {
+        query = query.eq('location', location);
+      }
+      const { data, error } = await query;
       if (error) {
         setBanners([]);
       } else {
