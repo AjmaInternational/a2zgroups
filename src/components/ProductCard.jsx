@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const ProductCard = ({ product }) => {
+  const { addToCart } = useCart();
   if (!product) return null;
 
   return (
@@ -43,7 +45,11 @@ const ProductCard = ({ product }) => {
           <span className="text-2xl font-bold text-gray-900">
             £{product.price?.toFixed(2)}
           </span>
-          <button className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
+          <button
+            onClick={() => addToCart(product)}
+            disabled={product.is_sold_out}
+            className={`w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 ${product.is_sold_out ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>

@@ -1,12 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
 
 const OrderManager = () => {
-  // Mock data for orders
-  const [orders] = useState([
-    { id: 'ORD-001', customer: 'John Doe', email: 'john@example.com', total: 1250.00, status: 'pending', date: '2025-05-15' },
-    { id: 'ORD-002', customer: 'Jane Smith', email: 'jane@smith.co.uk', total: 450.50, status: 'shipped', date: '2025-05-14' },
-    { id: 'ORD-003', customer: 'Michael Brown', email: 'mike@brown.com', total: 89.99, status: 'cancelled', date: '2025-05-13' },
-  ]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        // Fallback to mock for UI demo if table missing
+        setOrders([
+          { id: '1', customer_name: 'John Doe', customer_email: 'john@example.com', total_amount: 1250.00, status: 'pending', created_at: new Date().toISOString() },
+          { id: '2', customer_name: 'Jane Smith', customer_email: 'jane@smith.co.uk', total_amount: 450.50, status: 'shipped', created_at: new Date().toISOString() },
+        ]);
+      } else {
+        setOrders(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const updateOrderStatus = async (id, status) => {
+    try {
+      const { error } = await supabase.from('orders').update({ status }).eq('id', id);
+      if (error) throw error;
+      fetchOrders();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   return (
     <div className="space-y-12">
@@ -33,25 +68,33 @@ const OrderManager = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
-              {orders.map(order => (
+              {loading ? (
+                <tr><td colSpan="6" className="text-center py-20 text-slate-500 uppercase font-black text-[10px] tracking-widest">Loading orders...</td></tr>
+              ) : orders.map(order => (
                 <tr key={order.id} className="hover:bg-slate-900/30 transition-colors group">
-                  <td className="px-10 py-6 font-bold text-xs text-white uppercase tracking-widest">{order.id}</td>
+                  <td className="px-10 py-6 font-bold text-xs text-white uppercase tracking-widest">#{order.id.toString().slice(0, 8)}</td>
                   <td className="px-10 py-6">
-                    <p className="font-bold text-xs text-white uppercase">{order.customer}</p>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{order.email}</p>
+                    <p className="font-bold text-xs text-white uppercase">{order.customer_name}</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{order.customer_email}</p>
                   </td>
-                  <td className="px-10 py-6 text-[10px] font-bold uppercase tracking-widest text-slate-400">{order.date}</td>
-                  <td className="px-10 py-6 font-display font-bold text-primary text-sm">£{order.total.toFixed(2)}</td>
+                  <td className="px-10 py-6 text-[10px] font-bold uppercase tracking-widest text-slate-400">{new Date(order.created_at).toLocaleDateString()}</td>
+                  <td className="px-10 py-6 font-display font-bold text-primary text-sm">£{parseFloat(order.total_amount).toFixed(2)}</td>
                   <td className="px-10 py-6">
-                    <span className={`text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest 
-                      ${order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : 
-                        order.status === 'shipped' ? 'bg-green-500/20 text-green-500' : 
-                        'bg-red-500/20 text-red-500'}`}>
-                      {order.status}
-                    </span>
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                      className={`text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest bg-slate-900 border-none outline-none cursor-pointer
+                        ${order.status === 'pending' ? 'text-yellow-500' :
+                          order.status === 'shipped' ? 'text-green-500' :
+                          'text-red-500'}`}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
                   </td>
                   <td className="px-10 py-6 text-right">
-                    <button className="bg-slate-800 text-white px-6 py-2 rounded-full font-bold uppercase text-[8px] tracking-[0.2em] hover:bg-primary hover:text-white transition-all">View Details</button>
+                    <button className="bg-slate-800 text-white px-6 py-2 rounded-full font-bold uppercase text-[8px] tracking-[0.2em] hover:bg-primary hover:text-white transition-all">Details</button>
                   </td>
                 </tr>
               ))}

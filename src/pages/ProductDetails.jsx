@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useProducts } from '../hooks/useData';
+import { useCart } from '../context/CartContext';
 import ProductCard from '../components/ProductCard';
 import Button from '../components/Button';
 import WaveDivider from '../components/WaveDivider';
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -97,8 +100,27 @@ const ProductDetails = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button variant="primary" size="lg" className="rounded-full">ADD TO CART</Button>
-                  <Button variant="secondary" size="lg" className="rounded-full">BUY IT NOW</Button>
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="rounded-full"
+                    onClick={() => addToCart(product, quantity)}
+                    disabled={product.is_sold_out}
+                  >
+                    ADD TO CART
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="rounded-full"
+                    onClick={() => {
+                      addToCart(product, quantity);
+                      navigate('/checkout');
+                    }}
+                    disabled={product.is_sold_out}
+                  >
+                    BUY IT NOW
+                  </Button>
                 </div>
               </div>
 

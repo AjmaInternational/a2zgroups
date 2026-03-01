@@ -43,15 +43,32 @@ const ProductManager = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      const productData = {
+        name: formData.name,
+        price: parseFloat(formData.price),
+        description: formData.description,
+        category: formData.category,
+        image_url: formData.image_url,
+        is_sold_out: formData.is_sold_out,
+      };
+
       if (editingProduct) {
-        const { error } = await supabase.from('products').update(formData).eq('id', editingProduct.id);
+        const { error } = await supabase.from('products').update(productData).eq('id', editingProduct.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('products').insert([formData]);
+        const { error } = await supabase.from('products').insert([productData]);
         if (error) throw error;
       }
       setEditingProduct(null);
       refreshProducts();
+      setFormData({
+        name: '',
+        price: '',
+        description: '',
+        category: '',
+        image_url: '',
+        is_sold_out: false,
+      });
     } catch (err) {
       alert(err.message);
     } finally {
@@ -116,7 +133,7 @@ const ProductManager = () => {
                   onChange={handleInputChange}
                 >
                   <option value="">Select Category</option>
-                  {categories.map(cat => <option key={cat.id} value={cat.slug}>{cat.name}</option>)}
+                  {categories.map(cat => <option key={cat.id} value={cat.name}>{cat.name}</option>)}
                 </select>
               </div>
               <div className="flex flex-col mb-4">
@@ -188,7 +205,7 @@ const ProductManager = () => {
                       </td>
                       <td className="px-10 py-6">
                         <p className="font-bold text-xs text-white uppercase truncate max-w-[200px]">{product.name}</p>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{product.category}</p>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{product.category || 'No Category'}</p>
                       </td>
                       <td className="px-10 py-6 font-display font-bold text-primary text-sm">£{product.price}</td>
                       <td className="px-10 py-6">

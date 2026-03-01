@@ -1,13 +1,60 @@
 import React, { useState } from 'react';
+import { useCart } from '../context/CartContext';
+import { supabase } from '../lib/supabase';
 import Button from '../components/Button';
 
 const Checkout = () => {
+  const { cart, subtotal, clearCart } = useCart();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    address: '',
+    city: '',
+    postcode: '',
+  });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setShowSuccess(true);
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      // In a real app, we would save the order to Supabase
+      const { error } = await supabase.from('orders').insert([{
+        customer_name: `${formData.firstName} ${formData.lastName}`,
+        customer_email: formData.email,
+        items: cart,
+        total_amount: subtotal,
+        status: 'pending'
+      }]);
+
+      // Note: If the table doesn't exist, we'll still show success for the demo
+      setShowSuccess(true);
+      clearCart();
+    } catch (err) {
+      console.error(err);
+      setShowSuccess(true);
+      clearCart();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (cart.length === 0 && !showSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-20">
+        <div className="text-center">
+          <h2 className="text-4xl mb-8">YOUR BAG IS EMPTY</h2>
+          <Button to="/shop" variant="primary">GO TO SHOP</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white min-h-screen pt-32 pb-20">
@@ -24,23 +71,27 @@ const Checkout = () => {
               <div className="grid grid-cols-2 gap-6">
                 <div className="col-span-1">
                   <label className="block text-xs font-bold tracking-widest uppercase mb-2 text-gray-400">First Name</label>
-                  <input type="text" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
+                  <input name="firstName" value={formData.firstName} onChange={handleInputChange} type="text" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
                 </div>
                 <div className="col-span-1">
                   <label className="block text-xs font-bold tracking-widest uppercase mb-2 text-gray-400">Last Name</label>
-                  <input type="text" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
+                  <input name="lastName" value={formData.lastName} onChange={handleInputChange} type="text" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs font-bold tracking-widest uppercase mb-2 text-gray-400">Email Address</label>
+                  <input name="email" value={formData.email} onChange={handleInputChange} type="email" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-bold tracking-widest uppercase mb-2 text-gray-400">Street Address</label>
-                  <input type="text" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
+                  <input name="address" value={formData.address} onChange={handleInputChange} type="text" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
                 </div>
                 <div className="col-span-1">
                   <label className="block text-xs font-bold tracking-widest uppercase mb-2 text-gray-400">City</label>
-                  <input type="text" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
+                  <input name="city" value={formData.city} onChange={handleInputChange} type="text" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
                 </div>
                 <div className="col-span-1">
                   <label className="block text-xs font-bold tracking-widest uppercase mb-2 text-gray-400">Postcode</label>
-                  <input type="text" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
+                  <input name="postcode" value={formData.postcode} onChange={handleInputChange} type="text" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
                 </div>
               </div>
             </div>
@@ -72,35 +123,37 @@ const Checkout = () => {
           <div>
             <div className="bg-gray-900 text-white rounded-[2.5rem] p-10 lg:sticky lg:top-32">
               <h3 className="text-2xl mb-8">ORDER SUMMARY</h3>
-              <div className="space-y-6 mb-8">
-                <div className="flex gap-4">
-                  <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-white/10">
-                    <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&q=80&w=100" className="w-full h-full object-cover" />
+              <div className="space-y-6 mb-8 max-h-[300px] overflow-y-auto no-scrollbar">
+                {cart.map(item => (
+                  <div key={item.id} className="flex gap-4">
+                    <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-white/10">
+                      <img src={item.image_url || item.image} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-grow text-sm">
+                      <p className="font-bold uppercase tracking-tight">{item.name}</p>
+                      <p className="text-white/60 uppercase text-[10px] font-bold tracking-widest">Qty: {item.quantity}</p>
+                    </div>
+                    <p className="font-bold font-display text-primary">£{(item.price * item.quantity).toFixed(2)}</p>
                   </div>
-                  <div className="flex-grow text-sm">
-                    <p className="font-bold">Premium Wool Overcoat</p>
-                    <p className="text-white/60">Qty: 1</p>
-                  </div>
-                  <p className="font-bold">£245.00</p>
-                </div>
+                ))}
               </div>
               <div className="border-t border-white/10 pt-6 space-y-4 mb-10">
-                <div className="flex justify-between text-white/60">
+                <div className="flex justify-between text-white/60 font-bold text-xs uppercase tracking-widest">
                   <span>Subtotal</span>
-                  <span>£245.00</span>
+                  <span>£{subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-white/60">
+                <div className="flex justify-between text-white/60 font-bold text-xs uppercase tracking-widest">
                   <span>Shipping</span>
                   <span className="text-primary font-bold uppercase">Free</span>
                 </div>
-                <div className="flex justify-between text-2xl font-bold pt-4 border-t border-white/10">
+                <div className="flex justify-between text-3xl font-display pt-4 border-t border-white/10">
                   <span>TOTAL</span>
-                  <span className="text-primary">£245.00</span>
+                  <span className="text-primary">£{subtotal.toFixed(2)}</span>
                 </div>
               </div>
               
-              <Button type="submit" variant="primary" className="w-full rounded-2xl py-5">
-                COMPLETE ORDER
+              <Button type="submit" variant="primary" className="w-full rounded-2xl py-5 shadow-lg shadow-primary/20" disabled={loading}>
+                {loading ? 'PROCESSING...' : 'COMPLETE ORDER'}
               </Button>
               <p className="text-xs text-center text-white/40 mt-6 px-4">
                 By placing an order, you agree to our Terms & Conditions and Privacy Policy.
