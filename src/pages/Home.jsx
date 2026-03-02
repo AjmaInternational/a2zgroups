@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
@@ -8,89 +9,41 @@ import Button from '../components/ui/Button';
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
-gsap.registerPlugin(ScrollTrigger);
-
 const Home = () => {
-
-  useEffect(() => {
-  gsap.from(".promo-img", {
-    y: 100,
-    opacity: 0,
-    stagger: 0.2,
-    duration: 1.2,
-    scrollTrigger: {
-      trigger: ".promo-img",
-      start: "top 80%",
-    }
-  })
-}, []);
-
   const heroRef = useRef(null);
-  const [currentHeroImage, setCurrentHeroImage] = useState(0);
-  const [currentPromoIndex, setCurrentPromoIndex] = useState(0);
-  const heroImages = [
-    'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=1000',
-    'https://images.unsplash.com/photo-1441984908747-d4128530063b?auto=format&fit=crop&q=80&w=1000',
-    'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1000',
-  ];
+  const promoCarouselRef = useRef(null);
+  const newArrivalsScrollRef = useRef(null);
 
-  const { products, loading: productsLoading } = useProducts({ limit: 12 });
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+
+  // 1. Fetch data as per requirements
+  const { banners: heroBanners } = useBanners({ page: 'home', position: 'hero', active: true });
+  const { banners: sliderBanners } = useBanners({ page: 'home', position: 'slider' });
+  const { products: promoProducts, loading: promoLoading } = useProducts({ is_promotional: true, limit: 10 });
+  const { products: newArrivals, loading: arrivalsLoading } = useProducts({ sortField: 'created_at', sortOrder: 'desc', limit: 8 });
   const { categories, loading: categoriesLoading } = useCategories();
-  const { banners: promoBanners } = useBanners('promotion');
-  const scrollRef = useRef(null);
 
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
-
-  const minSwipeDistance = 50;
-
-  const onTouchStart = (e) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
-
-  const onTouchEndHero = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    if (isLeftSwipe) {
-      setCurrentHeroImage((prev) => (prev + 1) % heroImages.length);
-    } else if (isRightSwipe) {
-      setCurrentHeroImage((prev) => (prev - 1 + heroImages.length) % heroImages.length);
-    }
-  };
-
-  const onTouchEndPromo = () => {
-    if (!touchStart || !touchEnd || !promoBanners.length) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    if (isLeftSwipe) {
-      setCurrentPromoIndex((prev) => (prev + 1) % promoBanners.length);
-    } else if (isRightSwipe) {
-      setCurrentPromoIndex((prev) => (prev - 1 + promoBanners.length) % promoBanners.length);
-    }
-  };
-
+  // Hero carousel logic
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentHeroImage((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [heroImages.length]);
-
-  useEffect(() => {
-    if (promoBanners && promoBanners.length > 0) {
+    if (heroBanners.length > 0) {
       const interval = setInterval(() => {
-        setCurrentPromoIndex((prev) => (prev + 1) % promoBanners.length);
-      }, 6000);
+        setCurrentHeroIndex((prev) => (prev + 1) % heroBanners.length);
+      }, 5000);
       return () => clearInterval(interval);
     }
-  }, [promoBanners]);
+  }, [heroBanners.length]);
 
+  useEffect(() => {
+  const test = async () => {
+    const { data, error } = await supabase.from('products').select('*')
+    console.log('DATA:', data)
+    console.log('ERROR:', error)
+  }
+  test()
+}, [])
+
+
+  // GSAP for Hero Content
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.from('.hero-content > *', {
@@ -100,35 +53,62 @@ const Home = () => {
         stagger: 0.2,
         ease: 'power4.out',
       });
-      gsap.from('.hero-image', {
+      gsap.from('.hero-image-container', {
         x: 100,
         opacity: 0,
         duration: 1.5,
         ease: 'power4.out',
       });
     }, heroRef);
-
     return () => ctx.revert();
-  }, []);
+  }, [heroBanners.length > 0]);
+
+  // GSAP Auto Sliding Carousel for Promotional Products
+  useEffect(() => {
+    if (promoProducts.length > 0 && promoCarouselRef.current) {
+      const carousel = promoCarouselRef.current;
+      const totalWidth = carousel.scrollWidth;
+      
+      const tl = gsap.to(carousel, {
+        scrollLeft: totalWidth / 2,
+        duration: 30,
+        ease: "none",
+        repeat: -1,
+      });
+
+      return () => tl.kill();
+    }
+  }, [promoProducts]);
+
+  // New Arrivals Auto Slider using GSAP
+  useEffect(() => {
+    if (newArrivals.length > 0 && newArrivalsScrollRef.current) {
+      const slider = newArrivalsScrollRef.current;
+      const tl = gsap.to(slider, {
+        scrollLeft: slider.scrollWidth / 2,
+        duration: 40,
+        ease: "none",
+        repeat: -1,
+      });
+      return () => tl.kill();
+    }
+  }, [newArrivals]);
 
   return (
     <div className="overflow-hidden">
-      {/* Hero Section */}
+      {/* 1. Hero Section (Dynamic) */}
       <section 
         ref={heroRef}
-        className="relative min-h-screen flex items-center bg-white px-6 lg:px-20 py-20 lg:py-0 mt-9"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEndHero}
+        className="relative min-h-[90vh] md:min-h-screen flex items-center bg-white px-6 lg:px-20 py-20 lg:py-0 mt-16 md:mt-9"
       >
         <div className="container mx-auto grid lg:grid-cols-2 gap-12 items-center">
           <div className="hero-content z-10 text-center lg:text-left">
-            <h4 className="text-primary font-bold tracking-widest mb-4">A2ZGROUPS PREMIUM</h4>
-            <h1 className="text-6xl md:text-7xl lg:text-8xl leading-tight mb-6">
+            <h4 className="text-primary font-bold tracking-widest mb-4 uppercase text-xs md:text-sm">A2ZGROUPS PREMIUM</h4>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl leading-tight mb-6 font-display font-black">
               REDEFINE <br />
-              <span className="text-primary">YOUR STYLE.</span>
+              <span className="text-primary">YOUR STYLE</span>
             </h1>
-            <p className="text-gray-600 text-lg md:text-xl max-w-xl mb-10 mx-auto lg:mx-0">
+            <p className="text-gray-600 text-base md:text-xl max-w-xl mb-10 mx-auto lg:mx-0">
               Discover our exclusive collection of premium retail products designed for those who appreciate quality and modern aesthetics.
             </p>
             <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
@@ -141,95 +121,158 @@ const Home = () => {
             </div>
           </div>
           
-          <div className="hero-image relative hidden lg:block h-[600px]">
-            {heroImages.map((img, idx) => (
-              <div 
-                key={idx}
-                className={`absolute inset-0 z-10 w-full h-full rounded-3xl overflow-hidden shadow-2xl transition-all duration-1000 ease-in-out transform ${
-                  idx === currentHeroImage 
-                    ? 'opacity-100 translate-x-0 rotate-3' 
-                    : 'opacity-0 translate-x-12 pointer-events-none'
-                }`}
-              >
-                <img 
-                  src={img} 
-                  alt={`Premium Retail ${idx + 1}`} 
-                  className="w-full h-full object-cover"
-                />
+          <div className="hero-image-container relative hidden lg:block h-[600px]">
+            {heroBanners.length > 0 ? (
+              heroBanners.map((banner, idx) => (
+                <div 
+                  key={banner.id}
+                  className={`absolute inset-0 z-10 w-full h-full rounded-3xl overflow-hidden shadow-2xl transition-all duration-1000 ease-in-out transform ${
+                    idx === currentHeroIndex 
+                      ? 'opacity-100 translate-x-0 rotate-3' 
+                      : 'opacity-0 translate-x-12 pointer-events-none'
+                  }`}
+                >
+                  <img 
+                    src={banner.image_url} 
+                    alt={banner.title} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="absolute inset-0 z-10 w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-400">Loading premium collection...</span>
               </div>
-            ))}
+            )}
             <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-accent rounded-full -z-10 blur-3xl opacity-50"></div>
             <div className="absolute -top-10 -right-10 w-64 h-64 bg-primary rounded-full -z-10 blur-3xl opacity-20"></div>
             
-            {/* Carousel Navigation Indicators */}
             <div className="absolute -bottom-8 right-0 flex gap-4 z-20">
-              {heroImages.map((_, idx) => (
+              {heroBanners.map((_, idx) => (
                 <button
                   key={idx}
-                  onClick={() => setCurrentHeroImage(idx)}
+                  onClick={() => setCurrentHeroIndex(idx)}
                   className={`h-1 transition-all duration-300 ${
-                    idx === currentHeroImage ? 'w-12 bg-primary' : 'w-6 bg-gray-200 hover:bg-gray-300'
+                    idx === currentHeroIndex ? 'w-12 bg-primary' : 'w-6 bg-gray-200 hover:bg-gray-300'
                   }`}
                 />
               ))}
             </div>
           </div>
         </div>
+       
       </section>
 
-      <WaveDivider />
-{/* PROMOTIONAL PRODUCTS COLLAGE */}
-<section className="relative py-40 bg-white overflow-hidden">
+  
 
-  {/* CENTER TITLE */}
-  <h2 className="text-center text-6xl md:text-8xl font-heading tracking-wide z-20 relative">
-    PROMOTIONAL PRODUCTS
-  </h2>
+      {/* 2. Promotional Products Carousel (Teal Theme) */}
+      <section className="relative py-32 md:py-40 bg-[#159A9C] text-white overflow-hidden">
+                    <WaveDivider color="#159A9C" />
+        <div className="container mx-auto px-6 mb-16 relative z-10 text-center">
+          <h2 className="text-4xl md:text-7xl font-display uppercase tracking-wide mb-4">
+            PROMOTIONAL <span className="text-slate-900">PRODUCTS</span>
+          </h2>
+          <div className="w-24 h-1 bg-white mx-auto"></div>
+        </div>
 
-  {/* FLOATING IMAGES */}
-  <img src="/promo1.jpg" className="promo-img absolute top-10 left-10 w-40 md:w-64" />
-  <img src="/promo2.jpg" className="promo-img absolute top-20 right-20 w-48 md:w-72" />
-  <img src="/promo3.jpg" className="promo-img absolute bottom-20 left-32 w-44 md:w-60" />
-  <img src="/promo4.jpg" className="promo-img absolute bottom-10 right-10 w-52 md:w-80" />
-  <img src="/promo5.jpg" className="promo-img absolute top-1/2 left-1/3 w-56 md:w-72" />
+        <div 
+          ref={promoCarouselRef}
+          className="flex gap-6 md:gap-8 overflow-hidden whitespace-nowrap px-6"
+        >
+          {promoLoading ? (
+            [...Array(5)].map((_, i) => (
+              <div key={i} className="min-w-[280px] md:min-w-[300px] h-[380px] md:h-[400px] bg-white/10 rounded-3xl animate-pulse"></div>
+            ))
+          ) : (
+            // Double the items for seamless looping
+            [...promoProducts, ...promoProducts].map((product, idx) => (
+              <div key={`${product.id}-${idx}`} className="min-w-[280px] md:min-w-[300px] group relative bg-white/5 p-6 rounded-[2.5rem] backdrop-blur-sm border border-white/10">
+                <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl mb-6">
+                  <img src={product.image_url} alt={product.name} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" />
+                </div>
+                <h3 className="text-xl font-bold truncate mb-2">{product.name}</h3>
+                <p className="text-accent font-bold text-lg tracking-widest">£{product.price.toFixed(2)}</p>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
 
-</section>
       
-      
-      {/* Best Sellers Section */}
-      <section className="section-spacing bg-white">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+
+      {/* 3. New Arrivals Auto Slider (White Theme) */}
+      <section className="py-32 bg-white">
+        <div className="container mx-auto px-6 mb-16">
+          <div className="flex flex-col md:flex-row justify-between items-center md:items-end gap-6 text-center md:text-left">
             <div>
-              <h2 className="text-4xl md:text-5xl mb-4">BEST SELLERS</h2>
-              <p className="text-gray-500 max-w-md">Our most popular pieces, loved by customers worldwide for their quality and timeless design.</p>
+              <h4 className="text-primary font-bold tracking-[0.3em] mb-2 uppercase text-xs">JUST LANDED</h4>
+              <h2 className="text-4xl md:text-6xl text-slate-900 font-display font-black uppercase">NEW ARRIVALS</h2>
             </div>
-            <Link to="/shop" className="text-primary font-bold border-b-2 border-primary pb-1 hover:text-primary-dark transition-colors">
-              VIEW ALL PRODUCTS
+            <Link to="/shop" className="text-primary font-bold border-b-2 border-primary pb-1 hover:text-slate-900 hover:border-slate-900 transition-all uppercase tracking-widest text-sm">
+              VIEW ALL COLLECTIONS
             </Link>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-            {productsLoading ? (
-              [...Array(4)].map((_, i) => (
-                <div key={i} className="aspect-[3/4] bg-gray-100 animate-pulse rounded-3xl"></div>
-              ))
-            ) : (
-              products.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))
-            )}
+        </div>
+
+        <div 
+          ref={newArrivalsScrollRef}
+          className="flex gap-6 md:gap-8 overflow-hidden px-6 pb-12"
+        >
+          {arrivalsLoading ? (
+            [...Array(4)].map((_, i) => (
+              <div key={i} className="min-w-[300px] md:min-w-[450px] aspect-[16/10] bg-gray-100 animate-pulse rounded-[2.5rem]"></div>
+            ))
+          ) : (
+            [...newArrivals, ...newArrivals].map((product, idx) => (
+              <div key={`${product.id}-${idx}`} className="min-w-[300px] md:min-w-[450px] flex-shrink-0">
+                <Link to={`/product/${product.id}`} className="block group relative aspect-[16/10] overflow-hidden rounded-[2.5rem] shadow-premium hover:shadow-premium-hover transition-all duration-500">
+                  <img 
+                    src={product.image_url} 
+                    alt={product.name}
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                  <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-10 text-white">
+                    <span className="text-primary font-bold text-[10px] tracking-[0.2em] mb-2 uppercase">{product.category}</span>
+                    <h3 className="text-2xl md:text-3xl mb-4 group-hover:translate-x-2 transition-transform duration-500 font-display font-bold uppercase">{product.name}</h3>
+                    <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                      <span className="text-xl font-bold">£{product.price.toFixed(2)}</span>
+                      <span className="text-[10px] font-bold border-b border-white pb-1 tracking-widest uppercase">VIEW PRODUCT</span>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      <WaveDivider color="#159A9C" />
+
+      {/* 4. Promotional Banners Slider (Teal Theme) */}
+      <section className="py-32 bg-[#159A9C]">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            {sliderBanners.map(banner => (
+              <div key={banner.id} className="relative h-64 md:h-96 rounded-[3rem] overflow-hidden group shadow-2xl border border-white/10">
+                <img src={banner.image_url} alt={banner.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent flex flex-col justify-end p-10">
+                  <h3 className="text-white text-3xl md:text-4xl font-display font-black uppercase tracking-tight leading-none">{banner.title}</h3>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <WaveDivider flip={true} color="#f9fafb" />
+      <WaveDivider flip={true} color="#159A9C" />
 
-      {/* Category Showcase */}
-      <section className="section-spacing bg-gray-50">
+      {/* 5. Category Showcase (White Theme) */}
+      <section className="py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl mb-4">SHOP BY CATEGORY</h2>
+            <h4 className="text-primary font-bold tracking-[0.3em] mb-2 uppercase text-xs">COLLECTIONS</h4>
+            <h2 className="text-4xl md:text-5xl mb-4 text-slate-900 font-display font-black uppercase">SHOP BY CATEGORY</h2>
             <div className="w-24 h-1 bg-primary mx-auto"></div>
           </div>
           
@@ -239,21 +282,21 @@ const Home = () => {
                 <div key={i} className="h-96 bg-gray-200 animate-pulse rounded-3xl"></div>
               ))
             ) : (
-              categories.map((category, index) => (
+              categories.slice(0, 3).map((category, index) => (
                 <Link 
                   key={category.id}
-                  to={`/shop?category=${category.name}`}
-                  className={`group relative h-96 overflow-hidden rounded-3xl shadow-lg ${index === 1 ? 'md:translate-y-12' : ''}`}
+                  to={`/shop?category=${category.id}`}
+                  className={`group relative h-96 overflow-hidden rounded-[3rem] shadow-xl ${index === 1 ? 'md:translate-y-12' : ''}`}
                 >
                   <img 
-                    src={category.image_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800'} 
+                    src={category.image_url} 
                     alt={category.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors"></div>
-                  <div className="absolute inset-0 flex flex-col justify-end p-8">
-                    <h3 className="text-3xl text-white mb-2">{category.name}</h3>
-                    <span className="text-white/80 font-medium translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+                  <div className="absolute inset-0 flex flex-col justify-end p-10">
+                    <h3 className="text-3xl text-white mb-2 font-display font-black uppercase tracking-tight">{category.name}</h3>
+                    <span className="text-white/80 font-bold text-[10px] tracking-widest uppercase translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
                       EXPLORE COLLECTION →
                     </span>
                   </div>
@@ -264,77 +307,9 @@ const Home = () => {
         </div>
       </section>
 
-      <div className="pt-24 lg:pt-32">
-        <WaveDivider />
+      <div className="mt-32">
+        <WaveDivider color="#0f172b" />
       </div>
-
-     
-       {/* New Arrivals Carousel Section */}
-      <section className="section-spacing bg-white overflow-hidden">
-        <div className="container mx-auto px-6 mb-16">
-          <div className="flex justify-between items-end">
-            <div>
-              <h4 className="text-primary font-bold tracking-widest mb-2">JUST LANDED</h4>
-              <h2 className="text-5xl md:text-6xl">NEW ARRIVALS</h2>
-            </div>
-            <div className="flex gap-4">
-              <button 
-                onClick={() => {
-                  if (scrollRef.current) scrollRef.current.scrollBy({ left: -400, behavior: 'smooth' });
-                }}
-                className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-lg"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button 
-                onClick={() => {
-                  if (scrollRef.current) scrollRef.current.scrollBy({ left: 400, behavior: 'smooth' });
-                }}
-                className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-lg"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div 
-          ref={scrollRef}
-          className="flex gap-8 overflow-x-auto no-scrollbar px-6 md:px-[10%] pb-12 snap-x"
-        >
-          {productsLoading ? (
-            [...Array(6)].map((_, i) => (
-              <div key={i} className="min-w-[300px] md:min-w-[450px] aspect-[16/10] bg-gray-100 animate-pulse rounded-[2.5rem] flex-shrink-0"></div>
-            ))
-          ) : (
-            products.map((product) => (
-              <div key={product.id} className="min-w-[300px] md:min-w-[450px] flex-shrink-0 snap-center">
-                <Link to={`/product/${product.id}`} className="block group relative aspect-[16/10] overflow-hidden rounded-[2.5rem] shadow-premium hover:shadow-premium-hover transition-all duration-500">
-                  <img 
-                    src={product.image_url} 
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
-                  <div className="absolute inset-0 flex flex-col justify-end p-10">
-                    <span className="text-primary font-bold text-xs tracking-[0.2em] mb-2 uppercase">{product.category}</span>
-                    <h3 className="text-white text-3xl mb-4 group-hover:translate-x-2 transition-transform duration-500">{product.name}</h3>
-                    <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
-                      <span className="text-white text-xl font-bold">£{product.price.toFixed(2)}</span>
-                      <span className="text-white text-xs font-bold border-b border-white pb-1">VIEW PRODUCT</span>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
- <WaveDivider flip={true} color="#0f172b" />
     </div>
   );
 };

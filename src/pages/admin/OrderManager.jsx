@@ -13,17 +13,11 @@ const OrderManager = () => {
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) {
-        // Fallback to mock for UI demo if table missing
-        setOrders([
-          { id: '1', customer_name: 'John Doe', customer_email: 'john@example.com', total_amount: 1250.00, status: 'pending', created_at: new Date().toISOString() },
-          { id: '2', customer_name: 'Jane Smith', customer_email: 'jane@smith.co.uk', total_amount: 450.50, status: 'shipped', created_at: new Date().toISOString() },
-        ]);
-      } else {
-        setOrders(data);
-      }
+      if (error) throw error;
+      setOrders(data || []);
     } catch (err) {
       console.error(err);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -70,15 +64,17 @@ const OrderManager = () => {
             <tbody className="divide-y divide-slate-800">
               {loading ? (
                 <tr><td colSpan="6" className="text-center py-20 text-slate-500 uppercase font-black text-[10px] tracking-widest">Loading orders...</td></tr>
+              ) : orders.length === 0 ? (
+                <tr><td colSpan="6" className="text-center py-20 text-slate-500 uppercase font-black text-[10px] tracking-widest">No orders found</td></tr>
               ) : orders.map(order => (
                 <tr key={order.id} className="hover:bg-slate-900/30 transition-colors group">
                   <td className="px-10 py-6 font-bold text-xs text-white uppercase tracking-widest">#{order.id.toString().slice(0, 8)}</td>
                   <td className="px-10 py-6">
                     <p className="font-bold text-xs text-white uppercase">{order.customer_name}</p>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{order.customer_email}</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{order.email}</p>
                   </td>
                   <td className="px-10 py-6 text-[10px] font-bold uppercase tracking-widest text-slate-400">{new Date(order.created_at).toLocaleDateString()}</td>
-                  <td className="px-10 py-6 font-display font-bold text-primary text-sm">£{parseFloat(order.total_amount).toFixed(2)}</td>
+                  <td className="px-10 py-6 font-display font-bold text-primary text-sm">£{parseFloat(order.total).toFixed(2)}</td>
                   <td className="px-10 py-6">
                     <select 
                       value={order.status}
@@ -86,10 +82,12 @@ const OrderManager = () => {
                       className={`text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest bg-slate-900 border-none outline-none cursor-pointer
                         ${order.status === 'pending' ? 'text-yellow-500' : 
                           order.status === 'shipped' ? 'text-green-500' : 
+                          order.status === 'completed' ? 'text-blue-500' :
                           'text-red-500'}`}
                     >
                       <option value="pending">Pending</option>
                       <option value="shipped">Shipped</option>
+                      <option value="completed">Completed</option>
                       <option value="cancelled">Cancelled</option>
                     </select>
                   </td>

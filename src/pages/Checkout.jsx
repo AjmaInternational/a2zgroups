@@ -11,6 +11,7 @@ const Checkout = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     address: '',
     city: '',
     postcode: '',
@@ -24,22 +25,23 @@ const Checkout = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // In a real app, we would save the order to Supabase
       const { error } = await supabase.from('orders').insert([{
         customer_name: `${formData.firstName} ${formData.lastName}`,
-        customer_email: formData.email,
+        email: formData.email,
+        phone: formData.phone,
+        address: `${formData.address}, ${formData.city}, ${formData.postcode}`,
         items: cart,
-        total_amount: subtotal,
+        total: subtotal,
         status: 'pending'
       }]);
 
-      // Note: If the table doesn't exist, we'll still show success for the demo
+      if (error) throw error;
+
       setShowSuccess(true);
       clearCart();
     } catch (err) {
       console.error(err);
-      setShowSuccess(true);
-      clearCart();
+      alert('Error creating order: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -80,6 +82,10 @@ const Checkout = () => {
                 <div className="col-span-2">
                   <label className="block text-xs font-bold tracking-widest uppercase mb-2 text-gray-400">Email Address</label>
                   <input name="email" value={formData.email} onChange={handleInputChange} type="email" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs font-bold tracking-widest uppercase mb-2 text-gray-400">Phone Number</label>
+                  <input name="phone" value={formData.phone} onChange={handleInputChange} type="tel" className="w-full border-2 border-gray-100 rounded-xl px-4 py-3 focus:border-primary outline-none" required />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-bold tracking-widest uppercase mb-2 text-gray-400">Street Address</label>
@@ -127,7 +133,7 @@ const Checkout = () => {
                 {cart.map(item => (
                   <div key={item.id} className="flex gap-4">
                     <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-white/10">
-                      <img src={item.image_url || item.image} className="w-full h-full object-cover" />
+                      <img src={item.image_url} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-grow text-sm">
                       <p className="font-bold uppercase tracking-tight">{item.name}</p>

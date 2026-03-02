@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { signIn } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, call supabase.auth.signInWithPassword
-    console.log({ email, password });
-    navigate('/dashboard');
+    setLoading(true);
+    setError(null);
+    try {
+      const { error } = await signIn(email, password);
+      if (error) throw error;
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,6 +33,12 @@ const Login = () => {
           <h1 className="text-4xl mb-2">WELCOME BACK</h1>
           <p className="text-gray-500">Enter your details to access your account</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 text-red-500 rounded-2xl text-sm font-bold text-center">
+            {error.toUpperCase()}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -48,8 +66,8 @@ const Login = () => {
           <div className="flex justify-end">
             <Link to="/forgot-password" size="sm" className="text-sm text-primary font-bold">FORGOT PASSWORD?</Link>
           </div>
-          <Button type="submit" variant="primary" className="w-full rounded-2xl py-5">
-            SIGN IN
+          <Button type="submit" variant="primary" className="w-full rounded-2xl py-5" disabled={loading}>
+            {loading ? 'SIGNING IN...' : 'SIGN IN'}
           </Button>
         </form>
 

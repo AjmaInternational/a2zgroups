@@ -19,11 +19,15 @@ export const useProducts = (filters = {}) => {
         query = query.ilike('name', `%${filters.search}%`);
       }
       
-      if (filters.minPrice) {
+      if (filters.minPrice !== undefined && filters.minPrice !== null) {
         query = query.gte('price', filters.minPrice);
       }
-      if (filters.maxPrice) {
+      if (filters.maxPrice !== undefined && filters.maxPrice !== null) {
         query = query.lte('price', filters.maxPrice);
+      }
+
+      if (filters.is_promotional !== undefined) {
+        query = query.eq('is_promotional', filters.is_promotional);
       }
 
       const sortField = filters.sortField || 'created_at';
@@ -41,21 +45,14 @@ export const useProducts = (filters = {}) => {
       const { data, error, count } = await query;
       
       if (error) {
-        // Mock data for development if table doesn't exist
-        const mockProducts = [
-          { id: 1, name: 'Classic Premium Tee', price: 45.00, category: 'Apparel', image_url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=800', is_new: true },
-          { id: 2, name: 'Modern Wool Blazer', price: 185.00, category: 'Outwear', image_url: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&q=80&w=800' },
-          { id: 3, name: 'Minimalist Leather Watch', price: 120.00, category: 'Accessories', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800' },
-          { id: 4, name: 'Premium Denim Jeans', price: 95.00, category: 'Apparel', image_url: 'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&q=80&w=800' },
-        ];
-        setProducts(mockProducts);
-        setTotalCount(mockProducts.length);
+        throw error;
       } else {
-        setProducts(data);
+        setProducts(data || []);
         if (count !== null) setTotalCount(count);
       }
     } catch (err) {
       setError(err.message);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -76,17 +73,13 @@ export const useCategories = () => {
     try {
       const { data, error } = await supabase.from('categories').select('*');
       if (error) {
-         const mockCategories = [
-          { id: 1, name: 'Apparel', image_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800' },
-          { id: 2, name: 'Accessories', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800' },
-          { id: 3, name: 'Footwear', image_url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=800' },
-        ];
-        setCategories(mockCategories);
+        throw error;
       } else {
-        setCategories(data);
+        setCategories(data || []);
       }
     } catch (err) {
       console.error(err.message);
+      setCategories([]);
     } finally {
       setLoading(false);
     }
@@ -99,24 +92,39 @@ export const useCategories = () => {
   return { categories, loading, refresh: fetchCategories };
 };
 
-export const useBanners = (location = 'home') => {
+export const useBanners = (filters = {}) => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchBanners = async () => {
     try {
       let query = supabase.from('banners').select('*');
-      if (location !== 'all') {
-        query = query.eq('location', location);
+      
+      // Handle legacy string argument
+      const filterObj = typeof filters === 'string' ? { location: filters } : filters;
+
+      if (filterObj.location && filterObj.location !== 'all') {
+        query = query.eq('location', filterObj.location);
       }
+      if (filterObj.page) {
+        query = query.eq('page', filterObj.page);
+      }
+      if (filterObj.position) {
+        query = query.eq('position', filterObj.position);
+      }
+      if (filterObj.active !== undefined) {
+        query = query.eq('active', filterObj.active);
+      }
+
       const { data, error } = await query;
       if (error) {
-        setBanners([]);
+        throw error;
       } else {
-        setBanners(data);
+        setBanners(data || []);
       }
     } catch (err) {
       console.error(err.message);
+      setBanners([]);
     } finally {
       setLoading(false);
     }
@@ -124,7 +132,7 @@ export const useBanners = (location = 'home') => {
 
   useEffect(() => {
     fetchBanners();
-  }, [location]);
+  }, [JSON.stringify(filters)]);
 
   return { banners, loading, refresh: fetchBanners };
 };

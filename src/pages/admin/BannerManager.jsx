@@ -3,11 +3,10 @@ import { supabase } from '../../lib/supabase';
 import { useBanners } from '../../hooks/useData';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import ImageUpload from '../../components/admin/ImageUpload';
 
 const BannerManager = () => {
-  const { banners, refresh: refreshBanners } = useBanners('all'); // Fetch all locations for manager
-  const [formData, setFormData] = useState({ title: '', subtitle: '', location: 'home', image_url: '' });
+  const { banners, refresh: refreshBanners } = useBanners(); 
+  const [formData, setFormData] = useState({ title: '', page: 'home', position: 'hero', image_url: '', active: true });
   const [loading, setLoading] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
 
@@ -15,14 +14,22 @@ const BannerManager = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      const bannerData = {
+        title: formData.title,
+        page: formData.page,
+        position: formData.position,
+        image_url: formData.image_url,
+        active: formData.active
+      };
+
       if (editingBanner) {
-        const { error } = await supabase.from('banners').update(formData).eq('id', editingBanner.id);
+        const { error } = await supabase.from('banners').update(bannerData).eq('id', editingBanner.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('banners').insert([formData]);
+        const { error } = await supabase.from('banners').insert([bannerData]);
         if (error) throw error;
       }
-      setFormData({ title: '', subtitle: '', location: 'home', image_url: '' });
+      setFormData({ title: '', page: 'home', position: 'hero', image_url: '', active: true });
       setEditingBanner(null);
       refreshBanners();
     } catch (err) {
@@ -40,6 +47,17 @@ const BannerManager = () => {
     }
   };
 
+  const handleEdit = (banner) => {
+    setEditingBanner(banner);
+    setFormData({
+      title: banner.title || '',
+      page: banner.page || 'home',
+      position: banner.position || 'hero',
+      image_url: banner.image_url || '',
+      active: banner.active ?? true
+    });
+  };
+
   return (
     <div className="space-y-12">
       <header className="pb-12 border-b border-slate-800 flex justify-between items-end">
@@ -47,11 +65,11 @@ const BannerManager = () => {
           <h1 className="text-6xl font-display font-black uppercase tracking-tighter text-white">BANNERS</h1>
           <p className="text-slate-500 font-bold uppercase tracking-[0.3em] text-xs mt-2">Manage promotional graphics</p>
         </div>
-        {editingBanner && (
+        {!editingBanner ? null : (
           <button 
             onClick={() => {
               setEditingBanner(null);
-              setFormData({ title: '', subtitle: '', location: 'home', image_url: '' });
+              setFormData({ title: '', page: 'home', position: 'hero', image_url: '', active: true });
             }}
             className="bg-slate-800 text-white px-8 py-4 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-slate-700 transition-all"
           >
@@ -71,31 +89,49 @@ const BannerManager = () => {
               value={formData.title} 
               onChange={(e) => setFormData({ ...formData, title: e.target.value })} 
             />
-            <Input 
-              label="Subtitle" 
-              className="!bg-slate-900 !border-slate-800 !text-white" 
-              value={formData.subtitle} 
-              onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })} 
-            />
-            <div className="flex flex-col mb-4">
-              <label className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-2">Location</label>
-              <select 
-                className="bg-slate-900 border-2 border-slate-800 px-6 py-4 rounded-3xl outline-none focus:border-primary transition-all text-sm text-white" 
-                value={formData.location} 
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              >
-                <option value="home">Home Page Hero</option>
-                <option value="shop">Shop Page Banner</option>
-                <option value="promotion">Promo Slider</option>
-              </select>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="flex flex-col">
+                <label className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-2">Page</label>
+                <select 
+                  className="bg-slate-900 border-2 border-slate-800 px-6 py-4 rounded-3xl outline-none focus:border-primary transition-all text-sm text-white" 
+                  value={formData.page} 
+                  onChange={(e) => setFormData({ ...formData, page: e.target.value })}
+                >
+                  <option value="home">Home</option>
+                  <option value="shop">Shop</option>
+                </select>
+              </div>
+              <div className="flex flex-col">
+                <label className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-2">Position</label>
+                <select 
+                  className="bg-slate-900 border-2 border-slate-800 px-6 py-4 rounded-3xl outline-none focus:border-primary transition-all text-sm text-white" 
+                  value={formData.position} 
+                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                >
+                  <option value="hero">Hero</option>
+                  <option value="slider">Slider</option>
+                </select>
+              </div>
             </div>
-            <ImageUpload 
-              currentImage={formData.image_url} 
-              onUpload={(url) => setFormData({ ...formData, image_url: url })} 
+            <Input 
+              label="Image URL" 
+              className="!bg-slate-900 !border-slate-800 !text-white" 
+              required 
+              value={formData.image_url} 
+              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} 
             />
+            <label className="flex items-center space-x-4 cursor-pointer p-4 bg-slate-900 rounded-2xl border border-slate-800">
+              <input 
+                type="checkbox" 
+                checked={formData.active} 
+                onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                className="w-5 h-5 accent-primary"
+              />
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Banner is Active</span>
+            </label>
             <div className="pt-6">
               <Button type="submit" size="xl" className="w-full" disabled={loading}>
-                {loading ? 'Adding...' : 'Add Banner'}
+                {loading ? 'Processing...' : (editingBanner ? 'Update Banner' : 'Add Banner')}
               </Button>
             </div>
           </form>
@@ -103,22 +139,25 @@ const BannerManager = () => {
 
         <div className="bg-slate-950 rounded-[4rem] border border-slate-800 overflow-hidden shadow-2xl h-fit">
           <div className="p-10 border-b border-slate-800 bg-slate-950/50">
-            <h2 className="text-2xl font-display font-black uppercase text-white tracking-tight">Live <span className="text-primary">Banners</span></h2>
+            <h2 className="text-2xl font-display font-black uppercase text-white tracking-tight">Existing <span className="text-primary">Banners</span></h2>
           </div>
           <div className="p-10">
             <div className="space-y-6">
-              {banners.map(banner => (
+              {banners.length === 0 ? (
+                <p className="text-slate-500 text-center py-10 font-bold uppercase tracking-widest text-xs">No banners found</p>
+              ) : banners.map(banner => (
                 <div key={banner.id} className="relative group h-48 rounded-3xl overflow-hidden border border-slate-800 shadow-lg">
                   <img src={banner.image_url} alt={banner.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-black/60 p-6 flex flex-col justify-end">
-                    <p className="text-[10px] font-black bg-primary text-white px-3 py-1 rounded-full uppercase tracking-widest w-fit mb-2">{banner.location}</p>
+                    <div className="flex gap-2 mb-2">
+                      <p className="text-[8px] font-black bg-primary text-white px-3 py-1 rounded-full uppercase tracking-widest w-fit">{banner.page}</p>
+                      <p className="text-[8px] font-black bg-slate-700 text-white px-3 py-1 rounded-full uppercase tracking-widest w-fit">{banner.position}</p>
+                      {!banner.active && <p className="text-[8px] font-black bg-red-500 text-white px-3 py-1 rounded-full uppercase tracking-widest w-fit">Inactive</p>}
+                    </div>
                     <h3 className="text-lg font-display font-black text-white uppercase tracking-tight">{banner.title}</h3>
                     <div className="absolute top-4 right-4 flex gap-2">
                       <button 
-                        onClick={() => {
-                          setEditingBanner(banner);
-                          setFormData({ title: banner.title, subtitle: banner.subtitle, location: banner.location, image_url: banner.image_url });
-                        }}
+                        onClick={() => handleEdit(banner)}
                         className="bg-white/20 backdrop-blur-md text-white p-3 rounded-2xl hover:bg-primary hover:text-white transition-all"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>

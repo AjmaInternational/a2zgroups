@@ -1,15 +1,31 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
+import Button from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { signUp } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    navigate('/dashboard');
+    setLoading(true);
+    setError(null);
+    try {
+      const { error } = await signUp(formData.email, formData.password, {
+        data: { full_name: formData.name }
+      });
+      if (error) throw error;
+      alert('Registration successful! Please check your email for verification.');
+      navigate('/login');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -19,6 +35,12 @@ const Register = () => {
           <h1 className="text-4xl mb-2">CREATE ACCOUNT</h1>
           <p className="text-gray-500">Join A2ZGROUPS for a premium experience</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 text-red-500 rounded-2xl text-sm font-bold text-center">
+            {error.toUpperCase()}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -54,8 +76,8 @@ const Register = () => {
               required
             />
           </div>
-          <Button type="submit" variant="primary" className="w-full rounded-2xl py-5">
-            SIGN UP
+          <Button type="submit" variant="primary" className="w-full rounded-2xl py-5" disabled={loading}>
+            {loading ? 'CREATING ACCOUNT...' : 'SIGN UP'}
           </Button>
         </form>
 

@@ -6,9 +6,8 @@ import Input from '../../components/ui/Input';
 
 const CategoryManager = () => {
   const { categories, refresh: refreshCategories } = useCategories();
-  const [formData, setFormData] = useState({ name: '', slug: '' });
+  const [formData, setFormData] = useState({ name: '', image_url: '' });
   const [loading, setLoading] = useState(false);
-
   const [editingCategory, setEditingCategory] = useState(null);
 
   const handleSubmit = async (e) => {
@@ -22,7 +21,7 @@ const CategoryManager = () => {
         const { error } = await supabase.from('categories').insert([formData]);
         if (error) throw error;
       }
-      setFormData({ name: '', slug: '' });
+      setFormData({ name: '', image_url: '' });
       setEditingCategory(null);
       refreshCategories();
     } catch (err) {
@@ -48,29 +47,40 @@ const CategoryManager = () => {
       </header>
 
       <div className="grid lg:grid-cols-2 gap-16">
-        <div className="bg-slate-950 p-12 rounded-[4rem] border border-slate-800 h-fit">
-          <h2 className="text-2xl font-display font-black uppercase mb-10 text-white tracking-tight">Create <span className="text-primary">New Category</span></h2>
+        <div className="bg-slate-950 p-12 rounded-[4rem] border border-slate-800 h-fit sticky top-32">
+          <h2 className="text-2xl font-display font-black uppercase mb-10 text-white tracking-tight">
+            {editingCategory ? 'Edit' : 'Create New'} <span className="text-primary">Category</span>
+          </h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input 
               label="Category Name" 
               className="!bg-slate-900 !border-slate-800 !text-white" 
-              placeholder="e.g. Electronics"
+              placeholder="e.g. Apparel"
               required 
               value={formData.name} 
               onChange={(e) => setFormData({ ...formData, name: e.target.value })} 
             />
             <Input 
-              label="Slug" 
+              label="Image URL" 
               className="!bg-slate-900 !border-slate-800 !text-white" 
-              placeholder="e.g. electronics"
+              placeholder="https://..."
               required 
-              value={formData.slug} 
-              onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/ /g, '-') })} 
+              value={formData.image_url} 
+              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} 
             />
             <div className="pt-6">
               <Button type="submit" size="xl" className="w-full" disabled={loading}>
-                {loading ? 'Adding...' : 'Add Category'}
+                {loading ? 'Processing...' : (editingCategory ? 'Update Category' : 'Add Category')}
               </Button>
+              {editingCategory && (
+                <button 
+                  type="button" 
+                  onClick={() => {setEditingCategory(null); setFormData({name:'', image_url:''});}} 
+                  className="w-full mt-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
+                >
+                  Cancel Edit
+                </button>
+              )}
             </div>
           </form>
         </div>
@@ -86,15 +96,19 @@ const CategoryManager = () => {
               <div className="space-y-4">
                 {categories.map(cat => (
                   <div key={cat.id} className="flex justify-between items-center p-6 bg-slate-900/50 rounded-3xl border border-slate-800 hover:border-primary transition-colors">
-                    <div>
-                      <p className="font-bold text-xs text-white uppercase">{cat.name}</p>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{cat.slug}</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-800 border border-slate-700">
+                        <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-xs text-white uppercase">{cat.name}</p>
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <button 
                         onClick={() => {
                           setEditingCategory(cat);
-                          setFormData({ name: cat.name, slug: cat.slug });
+                          setFormData({ name: cat.name, image_url: cat.image_url });
                         }} 
                         className="text-slate-400 hover:text-primary transition-colors p-2"
                       >
