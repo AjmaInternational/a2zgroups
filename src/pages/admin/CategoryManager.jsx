@@ -9,13 +9,21 @@ const CategoryManager = () => {
   const [formData, setFormData] = useState({ name: '', slug: '' });
   const [loading, setLoading] = useState(false);
 
+  const [editingCategory, setEditingCategory] = useState(null);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.from('categories').insert([formData]);
-      if (error) throw error;
+      if (editingCategory) {
+        const { error } = await supabase.from('categories').update(formData).eq('id', editingCategory.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('categories').insert([formData]);
+        if (error) throw error;
+      }
       setFormData({ name: '', slug: '' });
+      setEditingCategory(null);
       refreshCategories();
     } catch (err) {
       alert(err.message);
@@ -82,9 +90,20 @@ const CategoryManager = () => {
                       <p className="font-bold text-xs text-white uppercase">{cat.name}</p>
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{cat.slug}</p>
                     </div>
-                    <button onClick={() => handleDelete(cat.id)} className="text-slate-400 hover:text-red-500 transition-colors p-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => {
+                          setEditingCategory(cat);
+                          setFormData({ name: cat.name, slug: cat.slug });
+                        }} 
+                        className="text-slate-400 hover:text-primary transition-colors p-2"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                      </button>
+                      <button onClick={() => handleDelete(cat.id)} className="text-slate-400 hover:text-red-500 transition-colors p-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

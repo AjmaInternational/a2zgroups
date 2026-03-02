@@ -1,38 +1,45 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Button from '../components/Button';
+import { useCart } from '../context/CartContext';
+import Button from '../components/ui/Button';
 
 const Cart = () => {
-  // Mock cart items
-  const items = [
-    { id: 1, name: 'Premium Wool Overcoat', price: 245.00, quantity: 1, image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&q=80&w=200' },
-    { id: 2, name: 'Minimalist Leather Watch', price: 120.00, quantity: 1, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=200' },
-  ];
-
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const { cart, updateQuantity, removeFromCart, subtotal } = useCart();
 
   return (
     <div className="bg-white min-h-screen pt-32 pb-20">
       <div className="container mx-auto px-6 max-w-5xl">
         <h1 className="text-5xl mb-16 text-center">YOUR SHOPPING BAG</h1>
 
-        {items.length > 0 ? (
+        {cart.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
             <div className="lg:col-span-2 space-y-8">
-              {items.map(item => (
+              {cart.map(item => (
                 <div key={item.id} className="flex gap-6 pb-8 border-b border-gray-100 items-center">
                   <div className="w-24 h-32 rounded-2xl overflow-hidden bg-gray-50 flex-shrink-0">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <img src={item.image_url || item.image} alt={item.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-grow">
-                    <h3 className="text-xl mb-1">{item.name}</h3>
-                    <p className="text-gray-400 text-sm mb-4">QTY: {item.quantity}</p>
+                    <h3 className="text-xl mb-1 uppercase font-bold">{item.name}</h3>
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">Quantity</span>
+                      <div className="flex items-center border border-gray-100 rounded-full px-3 py-1">
+                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-6 h-6 flex items-center justify-center hover:text-primary">—</button>
+                        <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-6 h-6 flex items-center justify-center hover:text-primary">+</button>
+                      </div>
+                    </div>
                     <div className="flex items-center gap-4">
-                      <button className="text-xs font-bold text-gray-400 hover:text-red-500 underline uppercase tracking-widest">Remove</button>
+                      <button 
+                        onClick={() => removeFromCart(item.id)}
+                        className="text-[10px] font-black text-gray-400 hover:text-red-500 underline uppercase tracking-[0.2em] transition-colors"
+                      >
+                        Remove Item
+                      </button>
                     </div>
                   </div>
-                  <div className="text-xl font-bold">
-                    £{item.price.toFixed(2)}
+                  <div className="text-xl font-bold font-display text-gray-900">
+                    £{(item.price * item.quantity).toFixed(2)}
                   </div>
                 </div>
               ))}

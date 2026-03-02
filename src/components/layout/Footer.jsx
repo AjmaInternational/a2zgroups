@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom';
+import WaveDivider from '../WaveDivider';
+
 
 const Footer = () => {
+  
   return (
-    <footer className="bg-slate-900 text-white pt-16 pb-8 px-6">
+    
+    <footer className="bg-slate-900 text-white pt-16 pb-8 px-6" >
+      
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="col-span-1 md:col-span-1">
           <Link to="/" className="text-2xl font-display font-black tracking-tighter">

@@ -124,6 +124,8 @@ const Contact = () => {
           </div>
         </div>
       </section>
+      
+      <WaveDivider flip={true} color="#0f172b" />
     </div>
   );
 };

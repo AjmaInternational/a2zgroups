@@ -1,17 +1,27 @@
 import React, { useState } from 'react';
 import { useProducts, useCategories } from '../hooks/useData';
-import ProductCard from '../components/ProductCard';
+import ProductCard from '../components/ui/ProductCard';
 import WaveDivider from '../components/WaveDivider';
 
 const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState('NEWEST ARRIVALS');
   const [page, setPage] = useState(1);
   const pageSize = 12;
+
+  const getSortParams = () => {
+    switch (sortOption) {
+      case 'PRICE: LOW TO HIGH': return { sortField: 'price', sortOrder: 'asc' };
+      case 'PRICE: HIGH TO LOW': return { sortField: 'price', sortOrder: 'desc' };
+      default: return { sortField: 'created_at', sortOrder: 'desc' };
+    }
+  };
 
   const { products, totalCount, loading } = useProducts({
     category: selectedCategory,
     search: searchQuery,
+    ...getSortParams(),
     page,
     pageSize
   });
@@ -88,8 +98,12 @@ const Shop = () => {
           {/* Product Grid Area */}
           <main className="flex-grow">
             <div className="flex justify-between items-center mb-12">
-              <p className="text-gray-500 font-medium">SHOWING {products.length} OF {totalCount} PRODUCTS</p>
-              <select className="border-none bg-transparent font-bold text-gray-900 focus:ring-0">
+              <p className="text-gray-500 font-medium uppercase text-xs font-bold tracking-widest">SHOWING {products.length} OF {totalCount} PRODUCTS</p>
+              <select 
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                className="border-none bg-transparent font-bold text-gray-900 focus:ring-0 text-xs tracking-widest uppercase cursor-pointer"
+              >
                 <option>NEWEST ARRIVALS</option>
                 <option>PRICE: LOW TO HIGH</option>
                 <option>PRICE: HIGH TO LOW</option>
@@ -140,7 +154,7 @@ const Shop = () => {
           </main>
         </div>
       </div>
-      <WaveDivider flip={true} color="#159a9c" />
+      <WaveDivider flip={true} color="#0f172b" />
     </div>
   );
 };

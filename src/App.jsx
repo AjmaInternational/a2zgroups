@@ -2,8 +2,8 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Layouts
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
 
 // Pages
 const Home = lazy(() => import('./pages/Home'));
@@ -14,7 +14,13 @@ const Checkout = lazy(() => import('./pages/Checkout'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
-const AdminLayout = lazy(() => import('./components/AdminLayout'));
+const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
+const ProtectedRoute = lazy(() => import('./components/admin/ProtectedRoute'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const ProductManager = lazy(() => import('./pages/admin/ProductManager'));
+const CategoryManager = lazy(() => import('./pages/admin/CategoryManager'));
+const BannerManager = lazy(() => import('./pages/admin/BannerManager'));
+const OrderManager = lazy(() => import('./pages/admin/OrderManager'));
 const AboutUs = lazy(() => import('./pages/AboutUs'));
 const Contact = lazy(() => import('./pages/Contact'));
 
@@ -45,12 +51,19 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               
               {/* Admin Routes */}
-              <Route path="/safranbro-admin/*" element={<AdminLayout />}>
-                <Route index element={<div>Admin Dashboard</div>} />
-                <Route path="products" element={<div>Products Management</div>} />
-                <Route path="categories" element={<div>Categories Management</div>} />
-                <Route path="banners" element={<div>Banners Management</div>} />
-                <Route path="orders" element={<div>Orders Management</div>} />
+              <Route 
+                path="/safranbro-admin/*" 
+                element={
+                  <ProtectedRoute adminOnly={true}>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<AdminDashboard />} />
+                <Route path="products" element={<ProductManager />} />
+                <Route path="categories" element={<CategoryManager />} />
+                <Route path="banners" element={<BannerManager />} />
+                <Route path="orders" element={<OrderManager />} />
               </Route>
             </Routes>
           </Suspense>
