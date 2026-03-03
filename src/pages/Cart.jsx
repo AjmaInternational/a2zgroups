@@ -8,19 +8,19 @@ const Cart = () => {
 
   return (
     <div className="bg-white min-h-screen pt-32 pb-20">
-      <div className="container mx-auto px-6 max-w-5xl">
-        <h1 className="text-5xl mb-16 text-center">YOUR SHOPPING BAG</h1>
+      <div className="container mx-auto px-4 md:px-6 max-w-5xl">
+        <h1 className="text-4xl md:text-5xl mb-12 md:mb-16 text-center">YOUR SHOPPING BAG</h1>
 
         {cart.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
             <div className="lg:col-span-2 space-y-8">
               {cart.map(item => (
-                <div key={item.id} className="flex gap-6 pb-8 border-b border-gray-100 items-center">
-                  <div className="w-24 h-32 rounded-2xl overflow-hidden bg-gray-50 flex-shrink-0">
+                <div key={item.id} className="flex flex-col sm:flex-row gap-6 pb-8 border-b border-gray-100 sm:items-center">
+                  <div className="w-full sm:w-24 h-48 sm:h-32 rounded-2xl overflow-hidden bg-gray-50 flex-shrink-0">
                     <img src={item.image_url || item.image} alt={item.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-grow">
-                    <h3 className="text-xl mb-1 uppercase font-bold">{item.name}</h3>
+                    <h3 className="text-lg md:text-xl mb-1 uppercase font-bold">{item.name}</h3>
                     <div className="flex items-center gap-4 mb-4">
                       <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">Quantity</span>
                       <div className="flex items-center border border-gray-100 rounded-full px-3 py-1">

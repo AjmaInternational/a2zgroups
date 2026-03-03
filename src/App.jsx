@@ -11,8 +11,7 @@ const Shop = lazy(() => import('./pages/Shop'));
 const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 const Cart = lazy(() => import('./pages/Cart'));
 const Checkout = lazy(() => import('./pages/Checkout'));
-const Login = lazy(() => import('./pages/Login'));
-const Register = lazy(() => import('./pages/Register'));
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
 const ProtectedRoute = lazy(() => import('./components/admin/ProtectedRoute'));
@@ -44,8 +43,7 @@ function App() {
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<AdminLogin />} />
               <Route path="/dashboard/*" element={<Dashboard />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/contact" element={<Contact />} />

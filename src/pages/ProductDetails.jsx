@@ -72,8 +72,8 @@ const ProductDetails = () => {
               <span className="text-primary font-bold tracking-[0.2em] text-sm uppercase mb-4 block">
                 {product.category}
               </span>
-              <h1 className="text-5xl md:text-6xl mb-6">{product.name}</h1>
-              <p className="text-3xl font-bold text-gray-900 mb-8">£{product.price.toFixed(2)}</p>
+              <h1 className="text-4xl md:text-6xl mb-6">{product.name}</h1>
+              <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">£{product.price.toFixed(2)}</p>
               
               <div className="prose prose-lg text-gray-600 mb-10">
                 <p>{product.description}</p>

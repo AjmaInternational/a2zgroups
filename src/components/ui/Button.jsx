@@ -1,4 +1,6 @@
-const Button = ({ children, className = '', variant = 'primary', size = 'md', ...props }) => {
+import { Link } from 'react-router-dom';
+
+const Button = ({ children, className = '', variant = 'primary', size = 'md', to, ...props }) => {
   const baseStyles = 'inline-flex items-center justify-center font-bold uppercase tracking-widest transition-all rounded-full hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
@@ -15,9 +17,19 @@ const Button = ({ children, className = '', variant = 'primary', size = 'md', ..
     xl: 'px-12 py-5 text-base',
   };
 
+  const combinedClassName = `${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`;
+
+  if (to) {
+    return (
+      <Link to={to} className={combinedClassName} {...props}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
     <button 
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`} 
+      className={combinedClassName}
       {...props}
     >
       {children}
