@@ -57,8 +57,8 @@ const Shop = () => {
       <div className="container mx-auto px-6 py-20 lg:py-32">
         <div className="flex flex-col lg:flex-row gap-16">
           {/* Sidebar Filters */}
-          <aside className="lg:w-72 flex-shrink-0">
-            <div className="sticky top-32 space-y-12">
+          <aside className="lg:w-72 flex-shrink-0 order-2 lg:order-1">
+            <div className="lg:sticky lg:top-32 space-y-12">
               {/* Search */}
               <div>
                 <h4 className="text-lg font-bold mb-6 border-b pb-2">SEARCH</h4>
@@ -142,7 +142,7 @@ const Shop = () => {
           </aside>
 
           {/* Product Grid Area */}
-          <main className="flex-grow">
+          <main className="flex-grow order-1 lg:order-2">
             <div className="flex justify-between items-center mb-12">
               <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">SHOWING {products.length} OF {totalCount} PRODUCTS</p>
               <select 

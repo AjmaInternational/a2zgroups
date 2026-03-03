@@ -29,8 +29,8 @@ const Navbar = () => {
           )}
         </button>
 
-        <Link to="/" className="text-2xl font-display font-black tracking-tighter text-slate-900">
-          A2Z<span className="text-primary">GROUPS</span>
+        <Link to="/" className="flex items-center">
+          <img src="/logo.png" alt="A2ZGROUPS" className="h-10 md:h-14 w-auto object-contain" />
         </Link>
 
         {/* Desktop Menu */}
@@ -42,9 +42,6 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-6">
-          <Link to="/login" className="text-slate-900 hover:text-primary transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </Link>
           <Link to="/cart" className="relative text-slate-900 hover:text-primary transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
             {cartCount > 0 && (
@@ -63,7 +60,6 @@ const Navbar = () => {
           <Link to="/shop" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">Shop</Link>
           <Link to="/about" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">About</Link>
           <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">Contact</Link>
-          <Link to="/login" onClick={() => setIsMenuOpen(false)} className="bg-primary text-white p-6 rounded-3xl text-center text-lg mt-10 shadow-lg shadow-primary/20">Sign In</Link>
         </div>
       </div>
     </nav>

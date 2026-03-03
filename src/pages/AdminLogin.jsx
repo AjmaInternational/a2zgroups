@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 
-const Login = () => {
+const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ const Login = () => {
     try {
       const { error } = await signIn(email, password);
       if (error) throw error;
-      navigate('/dashboard');
+      navigate('/safranbro-admin');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -71,15 +71,9 @@ const Login = () => {
           </Button>
         </form>
 
-        <div className="mt-12 text-center">
-          <p className="text-gray-500">
-            Don't have an account? {' '}
-            <Link to="/register" className="text-primary font-bold">CREATE ONE</Link>
-          </p>
-        </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default AdminLogin;
