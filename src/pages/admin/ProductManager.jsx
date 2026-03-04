@@ -158,7 +158,7 @@ const ProductManager = () => {
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
+                    <option key={cat.name} value={cat.id}>
                       {cat.name}
                     </option>
                   ))}

@@ -48,7 +48,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="text-lg font-display uppercase text-slate-900 mb-1">Location</h4>
-                    <p className="text-gray-600">Premium Retail District, London, UK</p>
+                    <a href="https://maps.google.com/?q=London,UK" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-primary">
+                    Premium Retail District, London, UK</a>
                   </div>
                 </div>
                 <div className="flex items-center space-x-6 group">
@@ -59,7 +60,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="text-lg font-display uppercase text-slate-900 mb-1">Email</h4>
-                    <p className="text-gray-600">support@a2zgroups.com</p>
+                    <a href="mailto:support@a2zgroups.com" className="text-gray-600 hover:text-primary">support@a2zgroups.com</a>
                   </div>
                 </div>
                 <div className="flex items-center space-x-6 group">
@@ -70,8 +71,19 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="text-lg font-display uppercase text-slate-900 mb-1">Phone</h4>
-                    <p className="text-gray-600">+44 20 1234 5678</p>
+                    <a href="tel:+442012345678" className="text-gray-600 hover:text-primary">+44 20 1234 5678</a>
                   </div>
+                  <div>
+  <a
+    href="https://wa.me/442012345678"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="bg-green-500 text-white px-6 py-3 rounded-full"
+  >
+    Chat on WhatsApp
+  </a>
+</div>
+                  
                 </div>
               </div>
 

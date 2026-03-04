@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
+import jsPDF from 'jspdf';
 
 const Checkout = () => {
   const { cart, subtotal, clearCart } = useCart();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [lastOrder, setLastOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -28,7 +30,7 @@ const Checkout = () => {
       const { error } = await supabase.from('orders').insert([{
         customer_name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
-        phone: formData.phone,
+        // phone: formData.phone,
         address: `${formData.address}, ${formData.city}, ${formData.postcode}`,
         items: cart,
         total: subtotal,
@@ -37,6 +39,12 @@ const Checkout = () => {
 
       if (error) throw error;
 
+      setLastOrder({
+        customer: formData,
+        items: [...cart],
+        total: subtotal,
+        date: new Date().toLocaleDateString()
+      });
       setShowSuccess(true);
       clearCart();
     } catch (err) {
@@ -57,6 +65,49 @@ const Checkout = () => {
       </div>
     );
   }
+
+  const generateInvoice = () => {
+    if (!lastOrder) return;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(22);
+    doc.text('INVOICE', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.text(`Order Date: ${lastOrder.date}`, 20, 40);
+    doc.text(`Customer: ${lastOrder.customer.firstName} ${lastOrder.customer.lastName}`, 20, 50);
+    doc.text(`Email: ${lastOrder.customer.email}`, 20, 60);
+    doc.text(`Phone: ${lastOrder.customer.phone}`, 20, 70);
+    doc.text(`Address: ${lastOrder.customer.address}, ${lastOrder.customer.city}, ${lastOrder.customer.postcode}`, 20, 80);
+    
+    doc.text('Payment Status: NOT PAID', 20, 100);
+    
+    doc.line(20, 110, 190, 110);
+    doc.text('Item', 20, 120);
+    doc.text('Qty', 140, 120);
+    doc.text('Price', 170, 120);
+    doc.line(20, 125, 190, 125);
+    
+    let y = 135;
+    lastOrder.items.forEach(item => {
+      doc.text(item.name.substring(0, 40), 20, y);
+      doc.text(item.quantity.toString(), 140, y);
+      doc.text(`£${(item.price * item.quantity).toFixed(2)}`, 170, y);
+      y += 10;
+    });
+    
+    doc.line(20, y, 190, y);
+    doc.setFontSize(14);
+    doc.text('Total:', 140, y + 15);
+    doc.text(`£${lastOrder.total.toFixed(2)}`, 170, y + 15);
+    
+    doc.setFontSize(10);
+    doc.text('System upgrading. We received your order.', 105, y + 40, { align: 'center' });
+    doc.text('We will contact you soon regarding payment.', 105, y + 50, { align: 'center' });
+    doc.text('Contact: orders@a2zgroups.uk', 105, y + 60, { align: 'center' });
+
+    doc.save(`Invoice_${Date.now()}.pdf`);
+  };
 
   return (
     <div className="bg-white min-h-screen pt-32 pb-20">
@@ -178,13 +229,17 @@ const Checkout = () => {
               </svg>
             </div>
             <h2 className="text-4xl mb-4">ORDER RECEIVED</h2>
-            <p className="text-gray-500 mb-10 leading-relaxed">
-              Thank you for your order. We've sent a confirmation email to your inbox. 
-              Please contact us at <strong>orders@a2zgroups.uk</strong> for manual processing of payments.
+            <p className="text-gray-500 mb-6 leading-relaxed">
+              System upgrading. We received your order. We will contact you soon regarding payment.
             </p>
-            <Button to="/shop" variant="primary" className="rounded-full px-12">
-              CONTINUE SHOPPING
-            </Button>
+            <div className="flex flex-col gap-4">
+              <Button onClick={generateInvoice} variant="primary" className="rounded-full px-12">
+                DOWNLOAD INVOICE
+              </Button>
+              <Button to="/shop" variant="outline" className="rounded-full px-12">
+                CONTINUE SHOPPING
+              </Button>
+            </div>
           </div>
         </div>
       )}

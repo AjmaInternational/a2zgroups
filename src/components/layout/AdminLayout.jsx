@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 const AdminLayout = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
