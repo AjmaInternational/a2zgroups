@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import WaveDivider from '../WaveDivider';
-import logo from '../assets/logo.png'; // adjust path relative to your component
+import logo from "../../assets/logo.png";
 
 
 const Footer = () => {

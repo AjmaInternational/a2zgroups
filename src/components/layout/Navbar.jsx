@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import logo from '../assets/logo.png'; // adjust path relative to your component
+import logo from "../../assets/logo.png";
 
 
 const Navbar = () => {
