@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import logo from '../assets/logo.png'; // adjust path relative to your component
+
 
 const Navbar = () => {
   const { cart } = useCart();
@@ -30,7 +32,7 @@ const Navbar = () => {
         </button>
 
         <Link to="/" className="flex items-center">
-          <img src="\src\assets\logo.png" alt="A2ZGROUPS" className="h-10 md:h-16 w-auto object-contain" />
+          <img src={logo} alt="A2ZGROUPS" className="h-10 md:h-16 w-auto object-contain" />
         </Link>
 
         {/* Desktop Menu */}
