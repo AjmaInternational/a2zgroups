@@ -6,32 +6,35 @@ const ImageUpload = ({ onUpload, currentImage }) => {
 
   const handleUpload = async (e) => {
     try {
-      const file = e.target.files[0];
-      if (!file) return;
+      const files = e.target.files;
+if (!files || files.length === 0) return;
 
       setUploading(true);
 
       // Create unique file name
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `products/${fileName}`;
+     let uploadedUrls = [];
 
-      // Upload to Supabase Storage bucket
-      const { error: uploadError } = await supabase.storage
-        .from("product-images")   // ⚠️ YOUR BUCKET NAME
-        .upload(filePath, file);
+for (let file of files) {
 
-      if (uploadError) throw uploadError;
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
+  const filePath = `products/${fileName}`;
 
-      // Get public URL
-      const { data } = supabase.storage
-        .from("product-images")
-        .getPublicUrl(filePath);
+  const { error: uploadError } = await supabase.storage
+    .from("product-images")
+    .upload(filePath, file);
 
-      const publicUrl = data.publicUrl;
+  if (uploadError) throw uploadError;
 
-      // Send URL to parent (ProductManager)
-      onUpload(publicUrl);
+  const { data } = supabase.storage
+    .from("product-images")
+    .getPublicUrl(filePath);
+
+  uploadedUrls.push(data.publicUrl);
+}
+
+onUpload(uploadedUrls);
+
 
     } catch (error) {
       alert("Upload failed: " + error.message);
@@ -63,9 +66,10 @@ const ImageUpload = ({ onUpload, currentImage }) => {
 
         {/* Upload Input */}
         <div className="flex-grow">
-          <input
-            type="file"
-            accept="image/*"
+         <input
+type="file"
+accept="image/*"
+multiple
             onChange={handleUpload}
             disabled={uploading}
             className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-primary/20 file:text-primary hover:file:bg-primary/30 transition-all cursor-pointer"

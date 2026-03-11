@@ -5,13 +5,28 @@ const OrderManager = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [filterDate, setFilterDate] = useState('');
+const [filterMonth, setFilterMonth] = useState('');
+
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
+      let query = supabase
+  .from('orders')
+  .select('*')
+  .order('created_at', { ascending: false });
+
+if (filterDate) {
+  query = query.gte('created_at', filterDate).lt('created_at', filterDate + 'T23:59:59');
+}
+
+if (filterMonth) {
+  const start = filterMonth + '-01';
+  const end = filterMonth + '-31';
+  query = query.gte('created_at', start).lte('created_at', end);
+}
+
+const { data, error } = await query;
       
       if (error) throw error;
       setOrders(data || []);
@@ -22,6 +37,17 @@ const OrderManager = () => {
       setLoading(false);
     }
   };
+
+  const deleteOrder = async (id) => {
+  if (!confirm("Delete this order?")) return;
+
+  const { error } = await supabase
+    .from("orders")
+    .delete()
+    .eq("id", id);
+
+  if (!error) fetchOrders();
+};
 
   useEffect(() => {
     fetchOrders();
@@ -51,6 +77,28 @@ const OrderManager = () => {
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
+            <div className="p-10 border-b border-slate-800 flex gap-4">
+<input
+type="date"
+value={filterDate}
+onChange={(e)=>setFilterDate(e.target.value)}
+className="bg-slate-900 text-white px-4 py-2 rounded"
+/>
+
+<input
+type="month"
+value={filterMonth}
+onChange={(e)=>setFilterMonth(e.target.value)}
+className="bg-slate-900 text-white px-4 py-2 rounded"
+/>
+
+<button
+onClick={fetchOrders}
+className="bg-primary px-4 py-2 rounded text-white"
+>
+Filter
+</button>
+</div>
             <thead className="bg-slate-900/50 border-b border-slate-800 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
               <tr>
                 <th className="px-10 py-6">Order ID</th>
@@ -92,7 +140,18 @@ const OrderManager = () => {
                     </select>
                   </td>
                   <td className="px-10 py-6 text-right">
-                    <button className="bg-slate-800 text-white px-6 py-2 rounded-full font-bold uppercase text-[8px] tracking-[0.2em] hover:bg-primary hover:text-white transition-all">Details</button>
+<div className="flex justify-end gap-2">
+<button className="bg-slate-800 text-white px-4 py-2 rounded-full text-[8px] uppercase">
+Details
+</button>
+
+<button
+onClick={() => deleteOrder(order.id)}
+className="bg-red-600 text-white px-4 py-2 rounded-full text-[8px] uppercase"
+>
+Delete
+</button>
+</div>
                   </td>
                 </tr>
               ))}

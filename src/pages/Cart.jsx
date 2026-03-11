@@ -2,12 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import Button from '../components/ui/Button';
+import WaveDivider from '../components/WaveDivider';
 
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart, subtotal } = useCart();
 
   return (
-    <div className="bg-white min-h-screen pt-32 pb-20">
+    <div className="bg-white min-h-screen pt-32 mt-10">
+      <div className="pb-20">
       <div className="container mx-auto px-4 md:px-6 max-w-5xl">
         <h1 className="text-4xl md:text-5xl mb-12 md:mb-16 text-center">YOUR SHOPPING BAG</h1>
 
@@ -77,6 +79,8 @@ const Cart = () => {
           </div>
         )}
       </div>
+      </div>
+              <WaveDivider waveColor="#0f172b"/>
     </div>
   );
 };

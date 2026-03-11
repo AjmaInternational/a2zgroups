@@ -9,7 +9,7 @@ const AdminLayout = () => {
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
-      navigate('/login');
+      navigate('/safranbro-admin/login');
     }
   }, [user, isAdmin, loading, navigate]);
 

@@ -110,16 +110,43 @@ const BannerManager = () => {
                 >
                   <option value="hero">Hero</option>
                   <option value="slider">Slider</option>
+                  <option value="new-arrivals">New Arrivals</option>
                 </select>
               </div>
             </div>
-            <Input 
-              label="Image URL" 
-              className="!bg-slate-900 !border-slate-800 !text-white" 
-              required 
-              value={formData.image_url} 
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} 
-            />
+            <div>
+  <label className="text-xs text-slate-400 uppercase">Banner Image</label>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={async (e) => {
+
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const fileName = `banner-${Date.now()}-${file.name}`;
+
+      const { error } = await supabase.storage
+        .from("banners")
+        .upload(fileName, file);
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      const { data } = supabase.storage
+        .from("banners")
+        .getPublicUrl(fileName);
+
+      setFormData({
+        ...formData,
+        image_url: data.publicUrl
+      });
+
+    }}
+  />
+</div>
             <label className="flex items-center space-x-4 cursor-pointer p-4 bg-slate-900 rounded-2xl border border-slate-800">
               <input 
                 type="checkbox" 

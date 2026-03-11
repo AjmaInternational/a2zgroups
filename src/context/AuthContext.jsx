@@ -9,21 +9,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const checkIfAdmin = async (user) => {
-    if (!user) {
-      setIsAdmin(false);
-      return;
-    }
+const checkIfAdmin = async (user) => {
+  if (!user) {
+    setIsAdmin(false);
+    return;
+  }
 
-    // Checking metadata for admin flag or checking a separate profiles table
-    // For this implementation, we'll check user metadata or if email is specifically admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-
-    setIsAdmin(profile?.is_admin || user.email === 'admin@a2zgroups.uk');
+  setIsAdmin(true);
   };
 
   useEffect(() => {

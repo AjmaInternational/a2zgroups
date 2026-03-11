@@ -10,7 +10,7 @@ const ProductManager = () => {
   const { categories } = useCategories();
 
   const [editingProduct, setEditingProduct] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
+  const [images, setImages] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -32,7 +32,7 @@ const ProductManager = () => {
         stock: editingProduct.stock || 0,
         is_promotional: editingProduct.is_promotional || false,
       });
-      setImageUrl(editingProduct.image_url || "");
+      setImages(editingProduct.images || [editingProduct.image_url]);
     } else {
       setFormData({
         name: "",
@@ -42,7 +42,7 @@ const ProductManager = () => {
         stock: 0,
         is_promotional: false,
       });
-      setImageUrl("");
+      setImages([]);
     }
   }, [editingProduct]);
 
@@ -60,7 +60,8 @@ const ProductManager = () => {
         ...formData,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
-        image_url: imageUrl, // 🔥 from ImageUpload
+        image_url: images?.[0] || null,
+images: images || [],
       };
 
       if (editingProduct) {
@@ -158,7 +159,7 @@ const ProductManager = () => {
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
-                    <option key={cat.name} value={cat.id}>
+                      <option key={cat.name} value={cat.name}>
                       {cat.name}
                     </option>
                   ))}
@@ -175,10 +176,20 @@ const ProductManager = () => {
               />
 
               {/* 🔥 IMAGE UPLOAD COMPONENT */}
-              <ImageUpload
-                onUpload={(url) => setImageUrl(url)}
-                currentImage={imageUrl}
-              />
+            <ImageUpload
+onUpload={(urls) => setImages(prev => [...prev, ...urls])}
+/>
+{images.length > 0 && (
+  <div className="flex gap-3 flex-wrap mt-4">
+    {images.map((img, i) => (
+      <img
+        key={i}
+        src={img}
+        className="w-16 h-16 object-cover rounded-lg border border-slate-700"
+      />
+    ))}
+  </div>
+)}
 
               {/* PROMOTIONAL */}
               <label className="flex items-center gap-3 text-white">

@@ -26,10 +26,14 @@ const Contact = () => {
         </div>
       </section>
 
-      <WaveDivider color="white" flip={true} />
+       <div className="bg-white">
+  <WaveDivider waveColor="#159a9c" flip/>
+</div>
+
 
       {/* Form and Info */}
       <section className="py-24 bg-white">
+        
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-16">
             <motion.div
@@ -72,19 +76,22 @@ const Contact = () => {
                   <div>
                     <h4 className="text-lg font-display uppercase text-slate-900 mb-1">Phone</h4>
                     <a href="tel:+442012345678" className="text-gray-600 hover:text-primary">+44 20 1234 5678</a>
-                  </div>
-                  <div>
-  <a
-    href="https://wa.me/442012345678"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="bg-green-500 text-white px-6 py-3 rounded-full"
-  >
-    Chat on WhatsApp
-  </a>
-</div>
-                  
+                  </div>                  
                 </div>
+                 <div className="flex items-center space-x-6 group">
+              <div className="bg-primary/10 p-5 rounded-2xl text-primary group-hover:bg-primary group-hover:text-white transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
+                 <path d="M20.52 3.48A11.94 11.94 0 0012.05 0C5.4 0 .05 5.35.05 12c0 2.12.55 4.2 1.6 6.03L0 24l6.17-1.6A11.93 11.93 0 0012.05 24c6.65 0 12-5.35 12-12 0-3.2-1.25-6.2-3.53-8.52zM12.05 21.8c-1.83 0-3.62-.5-5.18-1.46l-.37-.22-3.66.95.98-3.57-.24-.37A9.75 9.75 0 012.3 12c0-5.37 4.38-9.75 9.75-9.75 2.6 0 5.05 1.01 6.9 2.86A9.69 9.69 0 0121.8 12c0 5.37-4.38 9.8-9.75 9.8zm5.36-7.36c-.3-.15-1.77-.87-2.04-.96-.27-.1-.47-.15-.66.15-.2.3-.76.96-.94 1.15-.17.2-.35.22-.65.07-.3-.15-1.28-.47-2.43-1.5-.9-.8-1.5-1.8-1.67-2.1-.17-.3-.02-.46.13-.61.14-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.66-1.6-.9-2.2-.24-.58-.48-.5-.66-.5h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5s1.06 2.9 1.2 3.1c.15.2 2.1 3.2 5.1 4.48.7.3 1.24.48 1.66.62.7.22 1.33.19 1.83.11.56-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z"/>
+             </svg>
+            </div>
+      <div>
+        <h4 className="text-lg font-display uppercase text-slate-900 mb-1">WhatsApp</h4>
+       <a href="https://wa.me/442012345678" className="text-gray-600 hover:text-primary">
+      Chat on WhatsApp
+        </a>
+      </div>
+      </div>
+
               </div>
 
               <div className="mt-16">
@@ -152,9 +159,10 @@ const Contact = () => {
         </div>
       </section>
       
-      <div className="mt-20">
-        <WaveDivider color="#0f172b" />
+         <div className="bg-white">
+        <WaveDivider waveColor="#0f172b" />
       </div>
+      
     </div>
   );
 };

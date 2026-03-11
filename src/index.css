@@ -22,6 +22,7 @@
 @layer base {
   body {
     @apply font-body bg-white text-gray-900 m-0 p-0 block min-h-screen w-full;
+    
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -7,6 +7,7 @@ import Input from '../../components/ui/Input';
 const CategoryManager = () => {
   const { categories, refresh: refreshCategories } = useCategories();
   const [formData, setFormData] = useState({ name: '', image_url: '' });
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
 
@@ -60,14 +61,44 @@ const CategoryManager = () => {
               value={formData.name} 
               onChange={(e) => setFormData({ ...formData, name: e.target.value })} 
             />
-            <Input 
-              label="Image URL" 
-              className="!bg-slate-900 !border-slate-800 !text-white" 
-              placeholder="https://..."
-              required 
-              value={formData.image_url} 
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} 
-            />
+            <div>
+  <label className="text-xs text-slate-400 uppercase">Category Image</label>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={async (e) => {
+
+      const file = e.target.files[0];
+      if (!file) return;
+
+      setUploading(true);
+
+      const fileName = `category-${Date.now()}-${file.name}`;
+
+      const { error } = await supabase.storage
+        .from("categories")
+        .upload(fileName, file);
+
+      if (error) {
+        alert(error.message);
+        setUploading(false);
+        return;
+      }
+
+      const { data } = supabase.storage
+        .from("categories")
+        .getPublicUrl(fileName);
+
+      setFormData({
+        ...formData,
+        image_url: data.publicUrl
+      });
+
+      setUploading(false);
+
+    }}
+  />
+</div>
             <div className="pt-6">
               <Button type="submit" size="xl" className="w-full" disabled={loading}>
                 {loading ? 'Processing...' : (editingCategory ? 'Update Category' : 'Add Category')}

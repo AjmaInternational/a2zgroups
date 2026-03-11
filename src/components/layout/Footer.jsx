@@ -11,7 +11,7 @@ const Footer = () => {
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="col-span-1 md:col-span-1">
           <Link to="/" className="inline-block">
-            <img src="/logo.png" alt="A2ZGROUPS" className="h-10 md:h-14 w-auto object-contain brightness-0 invert" />
+            <img src="\src\assets\logo.png" alt="A2ZGROUPS" className="h-10 md:h-20 w-auto object-contain" />
           </Link>
           <p className="mt-4 text-slate-400 text-sm leading-relaxed max-w-xs">
             A2ZGROUPS is a premium retail brand based in the UK, committed to providing high-quality products and a seamless shopping experience.
@@ -23,7 +23,6 @@ const Footer = () => {
           <ul className="space-y-3 text-slate-400 text-sm">
             <li><Link to="/shop" className="hover:text-primary transition-colors">All Products</Link></li>
             <li><Link to="/shop?category=new" className="hover:text-primary transition-colors">New Arrivals</Link></li>
-            <li><Link to="/shop?category=best-sellers" className="hover:text-primary transition-colors">Best Sellers</Link></li>
             <li><Link to="/shop?category=popular" className="hover:text-primary transition-colors">Popular</Link></li>
           </ul>
         </div>
@@ -33,8 +32,7 @@ const Footer = () => {
           <ul className="space-y-3 text-slate-400 text-sm">
             <li><Link to="/about" className="hover:text-primary transition-colors">About Us</Link></li>
             <li><Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
-            <li><Link to="/shipping" className="hover:text-primary transition-colors">Shipping & Returns</Link></li>
-            <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+            <li><Link to="/contact" className="hover:text-primary transition-colors">Shipping & Returns</Link></li>
           </ul>
         </div>
 
@@ -54,12 +52,11 @@ const Footer = () => {
         </div>
       </div>
       
-      <div className="container mx-auto mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center text-slate-500 text-xs gap-4">
+      <div className="container mx-auto mt-16 pt-8 flex flex-col md:flex-row justify-between items-center text-slate-500 text-xs gap-4">
         <p>© 2025 A2ZGROUPS LTD. All rights reserved.</p>
         <div className="flex space-x-6">
-          <a href="#" className="hover:text-primary transition-colors">Instagram</a>
-          <a href="#" className="hover:text-primary transition-colors">Facebook</a>
-          <a href="#" className="hover:text-primary transition-colors">Twitter</a>
+          <a href="https://www.instagram.com/_a2zgroup/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Instagram</a>
+          <a href="https://www.facebook.com/people/A2Z-Groups-of-Company-Ltd/100044358881999/#" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Facebook</a>
         </div>
       </div>
     </footer>

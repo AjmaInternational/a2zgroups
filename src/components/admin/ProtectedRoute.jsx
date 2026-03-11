@@ -1,26 +1,23 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
-const ProtectedRoute = ({ children, adminOnly = false }) => {
+const ProtectedRoute = ({ children, adminOnly }) => {
   const { user, loading, isAdmin } = useAuth();
-  const location = useLocation();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+  // 1️⃣ Wait for auth state to load
+  if (loading) return null;
+
+  // 2️⃣ Not logged in → redirect to login
+  if (!user) {
+    return <Navigate to="/safranbro-admin/login" replace />;
   }
 
-if (!user) {
-  return <Navigate to="/login" replace />;
-}
+  // 3️⃣ Logged in but not admin → redirect to public homepage
   if (adminOnly && !isAdmin) {
     return <Navigate to="/" replace />;
   }
 
+  // 4️⃣ User is logged in (and admin if required) → render children
   return children;
 };
 

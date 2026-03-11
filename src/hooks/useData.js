@@ -26,9 +26,9 @@ export const useProducts = (filters = {}) => {
         query = query.lte('price', filters.maxPrice);
       }
 
-      if (filters.is_promotional !== undefined) {
-        query = query.eq('is_promotional', filters.is_promotional);
-      }
+      if (filters.is_new_arrival !== undefined) {
+  query = query.eq('is_new_arrival', filters.is_new_arrival);
+}
 
       const sortField = filters.sortField || 'created_at';
       const ascending = filters.sortOrder === 'asc';

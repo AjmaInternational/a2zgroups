@@ -12,7 +12,7 @@ const ProductCard = ({ product }) => {
       {/* Product Image */}
       <Link to={`/product/${id}`} className="block overflow-hidden aspect-[4/5] relative">
         <img 
-          src={image_url || 'https://via.placeholder.com/400x500?text=A2ZGROUPS'} 
+          src={product.images?.[0] || image_url || '/assets/logo.png'}
           alt={name} 
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
@@ -22,7 +22,7 @@ const ProductCard = ({ product }) => {
           </div>
         )}
         <div className="absolute top-4 left-4">
-          <span className="bg-primary/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">{category}</span>
+          <span className="bg-primary/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">{product.category_name || category}</span>
         </div>
       </Link>
 

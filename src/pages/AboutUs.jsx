@@ -24,13 +24,16 @@ const AboutUs = () => {
             Redefining Premium Retail Excellence
           </motion.p>
         </div>
-        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none -z-10">
           <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
         </div>
       </section>
 
-      <WaveDivider color="white" flip={true} />
+       <div className="bg-white">
+<WaveDivider waveColor="var(--color-primary)" flip/>
+</div>
+
 
       {/* Brand Story Section */}
       <section className="py-24 bg-white">
@@ -169,8 +172,8 @@ const AboutUs = () => {
         </div>
       </section>
 
-      <div className="mt-20">
-        <WaveDivider color="#0f172b" />
+      <div className="bg-white">
+        <WaveDivider waveColor="#0f172b" />
       </div>
     </div>
   );

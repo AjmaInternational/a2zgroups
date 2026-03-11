@@ -5,7 +5,7 @@ const PromoProductCard = ({ product }) => {
   return (
     <div className="group relative bg-white/5 rounded-[2.5rem] overflow-hidden backdrop-blur-sm border border-white/10 aspect-[3/4] md:aspect-[4/5]">
       <img 
-        src={product.image_url} 
+        src={product.image_url || '/assets/logo.png'}
         alt={product.name} 
         className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" 
       />

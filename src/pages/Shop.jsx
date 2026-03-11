@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useProducts, useCategories } from '../hooks/useData';
 import ProductCard from '../components/ui/ProductCard';
 import WaveDivider from '../components/WaveDivider';
@@ -46,18 +47,27 @@ const Shop = () => {
   return (
     <div className="bg-white min-h-screen pt-20">
       {/* Shop Hero */}
-      <section className="bg-primary text-white py-24 relative overflow-hidden">
-        <div className="container mx-auto px-6 relative z-10 text-center">
+<section className="bg-primary text-white py-16 md:py-24 relative overflow-hidden">        
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="container mx-auto px-6 relative z-10 text-center"
+        >
           <h1 className="text-5xl md:text-7xl mb-4">ALL PRODUCTS</h1>
           <p className="text-white/80 text-xl font-light tracking-widest">DISCOVER YOUR NEXT FAVORITE PIECE</p>
-        </div>
+        </motion.div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
       </section>
+
+<div className="bg-white -mt-1  ">
+  <WaveDivider waveColor="#159a9c" flip/>
+</div>
+
 
       <div className="container mx-auto px-6 py-20 lg:py-32">
         <div className="flex flex-col lg:flex-row gap-16">
           {/* Sidebar Filters */}
-          <aside className="lg:w-72 flex-shrink-0 order-2 lg:order-1">
+            <aside className="lg:w-72 flex-shrink-0 order-1 lg:order-1">
             <div className="lg:sticky lg:top-32 space-y-12">
               {/* Search */}
               <div>
@@ -93,7 +103,7 @@ const Shop = () => {
                     <button 
                       key={cat.id}
                       onClick={() => {setSelectedCategory(cat.name); setPage(1);}}
-                      className={`block w-full text-left py-2 px-4 rounded-lg transition-colors ${selectedCategory == cat.id ? 'bg-primary text-white font-bold' : 'hover:bg-gray-50'}`}
+                      className={`block w-full text-left py-2 px-4 rounded-lg transition-colors ${selectedCategory === cat.name ? 'bg-primary text-white font-bold' : 'hover:bg-gray-50'}`}
                     >
                       {cat.name.toUpperCase()}
                     </button>
@@ -131,18 +141,18 @@ const Shop = () => {
                 </div>
               </div>
 
-              {/* Promotional sidebar banner */}
+              {/* Promotional sidebar banner
               <div className="bg-accent rounded-3xl p-8 relative overflow-hidden">
                 <h5 className="text-primary font-bold mb-2 uppercase">Limited Offer</h5>
                 <p className="text-sm text-gray-700 mb-6">Join our newsletter and get 15% off your first order.</p>
                 <button className="text-xs font-bold border-b-2 border-primary pb-1">JOIN NOW</button>
                 <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-primary/10 rounded-full"></div>
-              </div>
+              </div> */}
             </div>
           </aside>
 
           {/* Product Grid Area */}
-          <main className="flex-grow order-1 lg:order-2">
+            <main className="flex-grow order-2 lg:order-2">
             <div className="flex justify-between items-center mb-12">
               <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">SHOWING {products.length} OF {totalCount} PRODUCTS</p>
               <select 
@@ -168,8 +178,16 @@ const Shop = () => {
             ) : products.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-10">
-                  {products.map(product => (
-                    <ProductCard key={product.id} product={product} />
+                  {products.map((product, index) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: (index % 3) * 0.1 }}
+                    >
+                      <ProductCard product={product} />
+                    </motion.div>
                   ))}
                 </div>
 
@@ -203,7 +221,8 @@ const Shop = () => {
           </main>
         </div>
       </div>
-      <WaveDivider flip={true} color="#0f172b" />
+        {/* Footer Divider (white to footer dark) */}
+<WaveDivider waveColor="#0f172b" className="-mt-20 md:-mt-16" />
     </div>
   );
 };

@@ -1,16 +1,22 @@
 import React from 'react';
 
-const WaveDivider = ({ color = "#159a9c", className = "" }) => {
+const WaveDivider = ({
+  waveColor = "#159a9c",
+  className = "",
+  flip = false
+}) => {
   return (
-    <div className={`relative w-full overflow-hidden ${className}`}>
+    <div className={`relative w-full overflow-hidden leading-none -mb-1 ${className}`}>
       <svg
-        viewBox="0 0 1440 120"
-        className="w-full h-[120px] md:h-[160px]"
+        viewBox="0 0 1440 100"
         preserveAspectRatio="none"
+        style={{ transform: flip ? "scaleY(-1)" : "none" }}
+        className="block w-full h-[80px] md:h-[120px]"
+        
       >
         <path
-          fill={color}
-          d="M0,64L80,74.7C160,85,320,107,480,101.3C640,96,800,64,960,53.3C1120,43,1280,53,1360,58.7L1440,64V120H0Z"
+          fill={waveColor}
+          d="M0,60C240,120 480,0 720,60C960,120 1200,0 1440,60L1440,120L0,120Z"
         />
       </svg>
     </div>

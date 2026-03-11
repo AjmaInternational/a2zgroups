@@ -14,6 +14,7 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [mainImage, setMainImage] = useState("");
   const { products: relatedProducts } = useProducts({ limit: 4 });
 
   useEffect(() => {
@@ -21,8 +22,14 @@ const ProductDetails = () => {
       setLoading(true);
       const { data, error } = await supabase.from('products').select('*').eq('id', id).single();
       if (!error && data) {
-        setProduct(data);
-      } else {
+  setProduct(data);
+
+  if (data.images && data.images.length > 0) {
+    setMainImage(data.images[0]);
+  } else {
+    setMainImage(data.image_url);
+  }
+} else {
         // Mock fallback
         setProduct({
           id,
@@ -50,19 +57,27 @@ const ProductDetails = () => {
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
           {/* Image Gallery */}
           <div className="lg:w-1/2 space-y-6">
-            <div className="aspect-[4/5] rounded-[3rem] overflow-hidden shadow-premium">
-              <img 
-                src={product.image_url} 
-                alt={product.name} 
-                className="w-full h-full object-cover"
-              />
-            </div>
+            <div className="w-full h-[500px] rounded-[2rem] overflow-hidden shadow-premium">
+  <img
+    src={mainImage || '/assets/logo.png'}
+    alt={product.name}
+    className="w-full h-full object-cover"
+  />
+</div>
             <div className="grid grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="aspect-square rounded-2xl overflow-hidden border-2 border-gray-100 hover:border-primary cursor-pointer transition-colors">
-                  <img src={product.image_url} alt="" className="w-full h-full object-cover" />
-                </div>
-              ))}
+      {product.images && product.images.map((img, i) => (
+
+<div
+  key={i}
+  onClick={() => setMainImage(img)}
+  className="aspect-square rounded-2xl overflow-hidden border-2 border-gray-100 hover:border-primary cursor-pointer"
+>
+
+<img src={img} className="w-full h-full object-cover"/>
+
+</div>
+
+))}        
             </div>
           </div>
 

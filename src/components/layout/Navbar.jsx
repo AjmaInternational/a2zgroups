@@ -30,7 +30,7 @@ const Navbar = () => {
         </button>
 
         <Link to="/" className="flex items-center">
-          <img src="/logo.png" alt="A2ZGROUPS" className="h-10 md:h-14 w-auto object-contain" />
+          <img src="\src\assets\logo.png" alt="A2ZGROUPS" className="h-10 md:h-16 w-auto object-contain" />
         </Link>
 
         {/* Desktop Menu */}
@@ -54,14 +54,27 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 top-[88px] bg-white z-40 transition-transform duration-500 md:hidden ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="flex flex-col p-10 space-y-8 text-2xl font-display uppercase font-black text-slate-900">
-          <Link to="/" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">Home</Link>
-          <Link to="/shop" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">Shop</Link>
-          <Link to="/about" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">About</Link>
-          <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">Contact</Link>
-        </div>
-      </div>
+          {/* Mobile Menu Overlay */}
+<div
+  className={`fixed top-[88px] left-0 w-full h-[calc(100vh-88px)] bg-white z-40 transition-transform duration-300 md:hidden ${
+    isMenuOpen ? "translate-x-0" : "translate-x-full"
+  }`}
+>
+  <div className="flex flex-col p-10 space-y-8 text-2xl font-display uppercase font-black text-slate-900 bg-white h-full">
+    <Link to="/" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">
+      Home
+    </Link>
+    <Link to="/shop" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">
+      Shop
+    </Link>
+    <Link to="/about" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">
+      About
+    </Link>
+    <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="border-b border-slate-100 pb-4">
+      Contact
+    </Link>
+  </div>
+</div>
     </nav>
   );
 };

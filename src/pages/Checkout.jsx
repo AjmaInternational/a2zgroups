@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
 import jsPDF from 'jspdf';
+import WaveDivider from '../components/WaveDivider';
 
 const Checkout = () => {
   const { cart, subtotal, clearCart } = useCart();
@@ -66,51 +67,139 @@ const Checkout = () => {
     );
   }
 
-  const generateInvoice = () => {
-    if (!lastOrder) return;
-    const doc = new jsPDF();
-    
-    doc.setFontSize(22);
-    doc.text('INVOICE', 105, 20, { align: 'center' });
-    
-    doc.setFontSize(12);
-    doc.text(`Order Date: ${lastOrder.date}`, 20, 40);
-    doc.text(`Customer: ${lastOrder.customer.firstName} ${lastOrder.customer.lastName}`, 20, 50);
-    doc.text(`Email: ${lastOrder.customer.email}`, 20, 60);
-    doc.text(`Phone: ${lastOrder.customer.phone}`, 20, 70);
-    doc.text(`Address: ${lastOrder.customer.address}, ${lastOrder.customer.city}, ${lastOrder.customer.postcode}`, 20, 80);
-    
-    doc.text('Payment Status: NOT PAID', 20, 100);
-    
-    doc.line(20, 110, 190, 110);
-    doc.text('Item', 20, 120);
-    doc.text('Qty', 140, 120);
-    doc.text('Price', 170, 120);
-    doc.line(20, 125, 190, 125);
-    
-    let y = 135;
-    lastOrder.items.forEach(item => {
-      doc.text(item.name.substring(0, 40), 20, y);
-      doc.text(item.quantity.toString(), 140, y);
-      doc.text(`£${(item.price * item.quantity).toFixed(2)}`, 170, y);
-      y += 10;
-    });
-    
-    doc.line(20, y, 190, y);
-    doc.setFontSize(14);
-    doc.text('Total:', 140, y + 15);
-    doc.text(`£${lastOrder.total.toFixed(2)}`, 170, y + 15);
-    
-    doc.setFontSize(10);
-    doc.text('System upgrading. We received your order.', 105, y + 40, { align: 'center' });
-    doc.text('We will contact you soon regarding payment.', 105, y + 50, { align: 'center' });
-    doc.text('Contact: orders@a2zgroups.uk', 105, y + 60, { align: 'center' });
+const generateInvoice = async () => {
+  if (!lastOrder) return;
 
-    doc.save(`Invoice_${Date.now()}.pdf`);
-  };
+    try {
+   
+      const { data, error } = await supabase.functions.invoke("send-order-email", {
+  body: lastOrder
+});
+
+console.log("FUNCTION RESPONSE:", data);
+console.log("FUNCTION ERROR:", error);
+
+if (error) {
+  alert("Email function error: " + error.message);
+}
+
+  } catch (err) {
+    console.error("Email failed:", err);
+  }
+
+  
+  const doc = new jsPDF();
+
+  const primary = [21,154,156];   // your primary teal (#159a9c)
+  const dark = [15,23,43];        // footer navy (#0f172b)
+
+  // HEADER BACKGROUND
+  doc.setFillColor(...dark);
+  doc.rect(0,0,210,35,"F");
+
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(22);
+  doc.text("A2ZGROUPS",20,20);
+
+  doc.setFontSize(14);
+  doc.text("INVOICE",160,20);
+
+  // RESET TEXT COLOR
+  doc.setTextColor(0,0,0);
+
+  // CUSTOMER DETAILS BOX
+  doc.setFillColor(240,240,240);
+  doc.rect(20,45,170,35,"F");
+
+  doc.setFontSize(11);
+
+  doc.text(`Order Date: ${lastOrder.date}`,25,55);
+  doc.text(`Customer: ${lastOrder.customer.firstName} ${lastOrder.customer.lastName}`,25,62);
+  doc.text(`Email: ${lastOrder.customer.email}`,25,69);
+  doc.text(`Phone: ${lastOrder.customer.phone}`,25,76);
+
+  // ADDRESS
+  doc.text(
+    `Address: ${lastOrder.customer.address}, ${lastOrder.customer.city}, ${lastOrder.customer.postcode}`,
+    20,
+    95
+  );
+
+  // TABLE HEADER
+  doc.setFillColor(...primary);
+  doc.rect(20,105,170,10,"F");
+
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(12);
+
+  doc.text("Item",25,112);
+  doc.text("Qty",140,112);
+  doc.text("Price",170,112);
+
+  // ITEMS
+  doc.setTextColor(0,0,0);
+
+  let y = 125;
+
+  lastOrder.items.forEach(item => {
+
+    doc.text(item.name.substring(0,40),25,y);
+
+    doc.text(item.quantity.toString(),145,y);
+
+    doc.text(`£${(item.price*item.quantity).toFixed(2)}`,170,y);
+
+    y+=10;
+
+  });
+
+  // TOTAL BOX
+  doc.setFillColor(240,240,240);
+  doc.rect(120,y+5,70,15,"F");
+
+  doc.setFontSize(14);
+
+  doc.text("Total:",125,y+15);
+
+  doc.setTextColor(...primary);
+
+  doc.text(`£${lastOrder.total.toFixed(2)}`,170,y+15);
+
+  doc.setTextColor(0,0,0);
+
+  // FOOTER
+  doc.setDrawColor(...primary);
+  doc.line(20,y+30,190,y+30);
+
+  doc.setFontSize(10);
+
+  doc.text(
+    "System upgrading. We received your order.",
+    105,
+    y+40,
+    {align:"center"}
+  );
+
+  doc.text(
+    "We will contact you soon regarding payment.",
+    105,
+    y+48,
+    {align:"center"}
+  );
+
+  doc.text(
+    "orders@a2zgroups.uk",
+    105,
+    y+56,
+    {align:"center"}
+  );
+
+  doc.save(`Invoice_${Date.now()}.pdf`);
+};
 
   return (
-    <div className="bg-white min-h-screen pt-32 pb-20">
+    <div className="bg-white min-h-screen pt-32 ">
+    <div className="pb-20">
       <div className="container mx-auto px-6 max-w-5xl">
         <h1 className="text-5xl mb-16 text-center">CHECKOUT</h1>
 
@@ -228,13 +317,15 @@ const Checkout = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-4xl mb-4">ORDER RECEIVED</h2>
+            <h2 className="text-4xl mb-4">CONFIRM YOUR ORDER</h2>
             <p className="text-gray-500 mb-6 leading-relaxed">
-              System upgrading. We received your order. We will contact you soon regarding payment.
+           Payment system is currently under maintenance to improve security.  
+           Please click “Complete & Download Invoice” to place your order. We will receive it via email and contact you shortly with payment details.
+
             </p>
             <div className="flex flex-col gap-4">
               <Button onClick={generateInvoice} variant="primary" className="rounded-full px-12">
-                DOWNLOAD INVOICE
+                Complete & Download Invoice
               </Button>
               <Button to="/shop" variant="outline" className="rounded-full px-12">
                 CONTINUE SHOPPING
@@ -243,6 +334,8 @@ const Checkout = () => {
           </div>
         </div>
       )}
+            </div>
+        <WaveDivider waveColor="#0f172b" className='mt-05'/>
     </div>
   );
 };
