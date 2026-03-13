@@ -10,9 +10,9 @@ const Footer = () => {
     <footer className="bg-slate-900 text-white pt-16 pb-8 px-6" >
       
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-        <div className="col-span-1 md:col-span-1">
+        <div className="col-span-1 md:col-span-1 flex flex-col items-start">
           <Link to="/" className="inline-block">
-            <img src={logo} alt="A2ZGROUPS" className="h-10 md:h-20 w-auto object-contain" />
+            <img src={logo} alt="A2ZGROUPS" className="h-16 md:h-24 w-auto object-contain mb-4" />
           </Link>
           <p className="mt-4 text-slate-400 text-sm leading-relaxed max-w-xs">
             A2ZGROUPS is a premium retail brand based in the UK, committed to providing high-quality products and a seamless shopping experience.

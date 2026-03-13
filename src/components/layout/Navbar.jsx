@@ -18,7 +18,7 @@ const Navbar = () => {
       </div>
       
       {/* Main Navbar */}
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-6 py-3 flex items-center justify-between">
         {/* Mobile Hamburger */}
         <button 
           className="md:hidden text-slate-900"
@@ -32,7 +32,7 @@ const Navbar = () => {
         </button>
 
         <Link to="/" className="flex items-center">
-          <img src={logo} alt="A2ZGROUPS" className="h-10 md:h-16 w-auto object-contain" />
+          <img src={logo} alt="A2ZGROUPS" className="h-14 md:h-20 w-auto object-contain shrink-0" />
         </Link>
 
         {/* Desktop Menu */}
