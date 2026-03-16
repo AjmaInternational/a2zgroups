@@ -46,17 +46,16 @@ const { banners: newArrivalBanners = [] } = useBanners({
         >
           <h1 className="text-5xl md:text-7xl font-display leading-[0.9] tracking-tight">
             <span className="block text-primary drop-shadow-md">
-              ELEVATE YOUR STYLE
+             Everything You Need 
             </span>
 
             <span className="block text-primary-dark text-6xl md:text-8xl mt-2">
-              WITH A2Z GROUPS
+            From A To Z
             </span>
           </h1>
 
           <p className="text-lg text-gray-600 mb-8 max-w-lg mt-6">
-            Discover our curated collection of premium products designed for
-            the modern lifestyle.
+            Explore a wide range of quality products with A2Z Groups Of Companies.
           </p>
 
           <Link

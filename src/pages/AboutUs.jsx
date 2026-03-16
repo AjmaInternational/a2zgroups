@@ -47,10 +47,10 @@ const AboutUs = () => {
               <h4 className="text-primary font-bold tracking-widest mb-4 uppercase">Our Heritage</h4>
               <h2 className="text-5xl font-display uppercase mb-8 text-slate-900">Brand Story</h2>
               <p className="text-gray-600 mb-6 leading-relaxed text-lg">
-                Founded with a vision to redefine the retail experience, A2ZGROUPS focuses on curated collections that blend functionality with premium aesthetics. Our journey started with a simple belief: everyone deserves access to high-end quality without compromise.
+                A2Z Groups of Companies UK is a dynamic trading company dedicated to delivering a diverse range of quality consumer products. With strong global partnerships and a growing network, we focus on bringing innovative, reliable, and trend-driven products that meet the evolving needs of modern markets and customers.
               </p>
               <p className="text-gray-600 leading-relaxed text-lg">
-                We believe that true luxury lies in the details. From our carefully selected materials to our seamless digital experience, every touchpoint is designed to exceed expectations.
+             Our commitment to quality, consistency, and innovation allows us to continually expand our portfolio while building long-term relationships with partners and customers worldwide. 🌍
               </p>
             </motion.div>
             <motion.div
@@ -151,11 +151,11 @@ const AboutUs = () => {
               <h2 className="text-5xl font-display uppercase mb-8 text-slate-900">Why Choose Us</h2>
               <ul className="space-y-6">
                 {[
-                  'Hand-picked curated collections',
-                  'Unmatched premium build quality',
-                  'Secure and seamless shopping experience',
-                  'Dedicated 24/7 customer support',
-                  'Sustainable and ethical sourcing'
+                  'Quality Assured Products',
+                  'Wide Product Range From A to Z',
+                  'Market-Driven Selection',
+                  'Trusted Global Network',
+                  'Customer-Focused Service'
                 ].map((item, i) => (
                   <li key={i} className="flex items-center gap-4 text-lg text-gray-700">
                     <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">

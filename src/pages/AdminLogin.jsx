@@ -19,6 +19,7 @@ const AdminLogin = () => {
       const { error } = await signIn(email, password);
       if (error) throw error;
       navigate('/safranbro-admin');
+      
     } catch (err) {
       setError(err.message);
     } finally {

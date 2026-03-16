@@ -15,7 +15,7 @@ const Footer = () => {
             <img src={logo} alt="A2ZGROUPS" className="h-16 md:h-24 w-auto object-contain mb-4" />
           </Link>
           <p className="mt-4 text-slate-400 text-sm leading-relaxed max-w-xs">
-            A2ZGROUPS is a premium retail brand based in the UK, committed to providing high-quality products and a seamless shopping experience.
+           A2Z Groups of Companies UK is a UK-based trading and distribution company focused on delivering a wide range of consumer products to the market.
           </p>
         </div>
 

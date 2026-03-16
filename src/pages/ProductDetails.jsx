@@ -52,7 +52,7 @@ const ProductDetails = () => {
   if (!product) return <div className="min-h-screen flex items-center justify-center">Product not found</div>;
 
   return (
-    <div className="bg-white pt-32">
+    <div className="bg-white pt-32 m-12">
       <div className="container mx-auto px-6 mb-32">
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
           {/* Image Gallery */}
@@ -91,7 +91,9 @@ const ProductDetails = () => {
               <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">£{product.price.toFixed(2)}</p>
               
               <div className="prose prose-lg text-gray-600 mb-10">
-                <p>{product.description}</p>
+               <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+  {product.description}
+</p>
                 {product.features && (
                   <ul className="mt-6 space-y-2">
                     {product.features.map((f, i) => (
